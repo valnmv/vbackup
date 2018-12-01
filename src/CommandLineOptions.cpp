@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "CommandLineOptions.h"
 
-void CommandLineOptions::Parse(int argc, char *argv[])
+void CommandLineOptions::Parse(int argc, wchar_t *argv[])
 {
-  std::string s(argv[1]);
+  std::wstring s(argv[1]);
   switch (s[0])
   {
   case 'a':

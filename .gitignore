@@ -25,6 +25,8 @@
 *.la
 *.a
 *.lib
+!/zlib-vs17/lib/x64/*.lib
+!/zlib-vs17/lib/x64/*.dll
 
 # Executables
 *.exe

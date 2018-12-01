@@ -11,6 +11,6 @@ public:
   Command command{ Command::Unknown };
   std::filesystem::path source;
   std::filesystem::path destination;
-  void Parse(int argc, char *argv[]);
+  void Parse(int argc, wchar_t *argv[]);
 };
 
