@@ -2,28 +2,33 @@
 //
 
 #include "pch.h"
-#include "vsscopy.h"
+#include "VssCopy.h"
+#include "CommandLineOptions.h"
 
 #include <iostream>
 #include <string>
 
-int main()
+int main(int argc, char* argv[])
 {
-  CoInitialize(NULL);
+  // TODO Error handling, test unicode paths
+  CommandLineOptions options;
+  options.Parse(argc, argv);
 
-  try
-  {
-	VSSCopy vss;
-	// Make sure your volume name has a trailing backslas
-	VSS_ID snapshotId = vss.CreateSnapshot(L"C:\\");
-	vss.CopySnapshotFile(snapshotId, L"\\Users\\Valyo\\NTUSER.DAT", L"c:/Users/valyo/NTUSER-copy.DAT");
-	//vss.RestoreSnapshot();
-  }
-  catch (const _com_error &err)
-  {
-	std::wstring error = err.ErrorMessage();
-	std::wcout << error;
-  }
+ // CoInitialize(NULL);
+ // try
+ // {
+	//VssCopy vss;
+	//// Make sure volume name has a trailing backslash!
+	//VSS_ID snapshotId = vss.CreateSnapshot(L"C:\\");
+	//vss.CopySnapshotFile(snapshotId, L"\\Users\\Valyo\\NTUSER.DAT", L"c:/Users/valyo/NTUSER-copy.DAT");
+	////vss.RestoreSnapshot();
+ // }
+ // catch (const _com_error &err)
+ // {
+	//std::wstring error = err.ErrorMessage();
+	//std::wcout << error;
+ // }
 
-  CoUninitialize();
+ // CoUninitialize();
+
 }

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "vsscopy.h"
+#include "VssCopy.h"
 
 inline void throw_if_fail(HRESULT hr)
 {
@@ -9,7 +9,7 @@ inline void throw_if_fail(HRESULT hr)
   }
 }
 
-VSS_ID VSSCopy::CreateSnapshot(std::wstring volume)
+VSS_ID VssCopy::CreateSnapshot(std::wstring volume)
 {
   throw_if_fail(CreateVssBackupComponents(&backupComponents));
   throw_if_fail(backupComponents->InitializeForBackup());
@@ -29,7 +29,7 @@ VSS_ID VSSCopy::CreateSnapshot(std::wstring volume)
   return snapshotId;
 }
 
-bool VSSCopy::CopySnapshotFile(const VSS_ID snapshotId, const WCHAR sourceFilePath[MAX_PATH], 
+bool VssCopy::CopySnapshotFile(const VSS_ID snapshotId, const WCHAR sourceFilePath[MAX_PATH], 
   const WCHAR newFileLocation[MAX_PATH])
 {
   VSS_SNAPSHOT_PROP snapshotProp;
@@ -42,7 +42,7 @@ bool VSSCopy::CopySnapshotFile(const VSS_ID snapshotId, const WCHAR sourceFilePa
   return CopyFile(existingFileLocation, newFileLocation, false);
 }
 
-void VSSCopy::EnumSnapshots()
+void VssCopy::EnumSnapshots()
 {
   CComPtr<IVssEnumObject> pIEnumSnapshots;
 
