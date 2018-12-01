@@ -1,0 +1,29 @@
+// vbackup.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include "pch.h"
+#include "vsscopy.h"
+
+#include <iostream>
+#include <string>
+
+int main()
+{
+  CoInitialize(NULL);
+
+  try
+  {
+	VSSCopy vss;
+	// Make sure your volume name has a trailing backslas
+	VSS_ID snapshotId = vss.CreateSnapshot(L"C:\\");
+	vss.CopySnapshotFile(snapshotId, L"\\Users\\Valyo\\NTUSER.DAT", L"c:/Users/valyo/NTUSER-copy.DAT");
+	//vss.RestoreSnapshot();
+  }
+  catch (const _com_error &err)
+  {
+	std::wstring error = err.ErrorMessage();
+	std::wcout << error;
+  }
+
+  CoUninitialize();
+}
