@@ -5,12 +5,13 @@
 * Use STL
 * Create archive of volume, e.g. C:
 * Include all files
-* Provide restore command
+* Provide archive and restore commands
+* Multi-thread
 * Show progress bar
-* Use ZLIB for compression
+* Use ZLIB library for compression
 
 ### Not needed or to do later / in the future
-* Archve and restore file security attributes
+* Archive and restore file security attributes
 
 ### Useful information / code examples
 
