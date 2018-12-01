@@ -1,3 +1,6 @@
+// Volume Shadow Copy Service facade
+// 
+
 #include "pch.h"
 #include "VssCopy.h"
 
@@ -42,6 +45,7 @@ bool VssCopy::CopySnapshotFile(const VSS_ID snapshotId, const WCHAR sourceFilePa
   return CopyFile(existingFileLocation, newFileLocation, false);
 }
 
+// Not completed, this is part of an example how to enumerate shadow copies
 void VssCopy::EnumSnapshots()
 {
   CComPtr<IVssEnumObject> pIEnumSnapshots;

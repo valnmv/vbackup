@@ -24,6 +24,12 @@
     <ClInclude Include="VssCopy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Archiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectoryBlock.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vbackup.cpp">
@@ -41,5 +47,11 @@
     <ClCompile Include="zpipe.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Archiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>
