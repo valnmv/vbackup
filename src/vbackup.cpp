@@ -8,11 +8,30 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char* argv[])
+#include <zlib.h>
+#include <fcntl.h>
+#include <io.h>
+
+extern "C" int def(FILE *source, FILE *dest, int level);
+extern "C" int inf(FILE *source, FILE *dest);
+
+int wmain(int argc, wchar_t* argv[])
 {
   // TODO Error handling, test unicode paths
   CommandLineOptions options;
   options.Parse(argc, argv);
+
+  FILE *source, *dest;
+  _wfopen_s(&source, options.source.c_str(), L"r");
+  _wfopen_s(&dest, options.destination.c_str(), L"w");
+  _setmode(_fileno(source), _O_BINARY);
+  _setmode(_fileno(dest), _O_BINARY);
+  
+  int rv = (options.command == Command::Archive) ? def(source, dest, -1) :
+	inf(source, dest);
+
+  fclose(source);
+  fclose(dest);
 
  // CoInitialize(NULL);
  // try
