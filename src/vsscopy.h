@@ -9,7 +9,7 @@
 
 #include <string>
 
-class VSSCopy
+class VssCopy
 {
 public:
   VSS_ID CreateSnapshot(std::wstring volume);
