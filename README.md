@@ -9,6 +9,7 @@
 * Show progress bar
 * Use ZLIB for compression
 
+### Code examples to use
 
-#### Volume Shadow Copy example
-https://wj32.org/wp/2012/12/13/how-to-backup-files-in-c-using-the-volume-shadow-copy-service-vss/
+* Volume Shadow Copy example, https://wj32.org/wp/2012/12/13/how-to-backup-files-in-c-using-the-volume-shadow-copy-service-vss/
+* Progress bar, https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
