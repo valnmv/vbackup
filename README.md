@@ -11,7 +11,7 @@
 * Use ZLIB library for compression
 
 ### Not needed or to do later / in the future
-* Archve and restore file security attributes
+* Archive and restore file security attributes
 
 ### Useful information / code examples
 
