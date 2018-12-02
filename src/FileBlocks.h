@@ -54,7 +54,7 @@ using IndexBlock = std::vector<IndexRecord>;
 struct DataBlock
 {
   uint64_t length;
-  uint64_t position;
+  uint64_t positionNext;
   std::vector<uint8_t> data;
 };
 
