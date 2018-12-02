@@ -49,14 +49,13 @@ struct IndexRecord
   void read(std::wistream& is);
 };
 
-using DirectoryBlock = std::vector<IndexRecord>;
+using IndexBlock = std::vector<IndexRecord>;
 
 struct DataBlock
 {
   uint64_t length;
   uint64_t position;
   std::vector<uint8_t> data;
-  std::vector<uint8_t> dataCompressed;
 };
 
 std::wostream& operator<<(std::wostream &os, const IndexRecord &rec);

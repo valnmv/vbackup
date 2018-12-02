@@ -30,7 +30,7 @@ int wmain(int argc, wchar_t* argv[])
   options.Parse(argc, argv);
 
   Archiver arc;
-  arc.loadDirBlocks(options.source);
+  arc.LoadDirectoryBlocks(options.source);
   
   FILE *source, *dest;
   _wfopen_s(&source, options.source.c_str(), L"r");

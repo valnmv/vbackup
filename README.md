@@ -13,6 +13,9 @@
 ### Not needed or to do later / in the future
 * Archive and restore file security attributes
 
+### Design
+![Jobs and tasks]./docs/design.jpg
+
 ### Useful information / code examples
 
 * Volume Shadow Copy example, https://wj32.org/wp/2012/12/13/how-to-backup-files-in-c-using-the-volume-shadow-copy-service-vss/
