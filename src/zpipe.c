@@ -33,13 +33,12 @@
    level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
-int def(FILE *source, FILE *dest, int level)
+int def(FILE *source, FILE *dest, int level, unsigned char in[CHUNK], 
+  unsigned char out[CHUNK])
 {
     int ret, flush;
     unsigned have;
     z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
 
     /* allocate deflate state */
     strm.zalloc = Z_NULL;
@@ -51,7 +50,7 @@ int def(FILE *source, FILE *dest, int level)
 
     /* compress until end of file */
     do {
-        strm.avail_in = fread(in, 1, CHUNK, source);
+        strm.avail_in = (uInt)fread(in, 1, CHUNK, source);
         if (ferror(source)) {
             (void)deflateEnd(&strm);
             return Z_ERRNO;
@@ -109,7 +108,7 @@ int inf(FILE *source, FILE *dest)
 
     /* decompress until deflate stream ends or end of file */
     do {
-        strm.avail_in = fread(in, 1, CHUNK, source);
+        strm.avail_in = (uInt)fread(in, 1, CHUNK, source);
         if (ferror(source)) {
             (void)inflateEnd(&strm);
             return Z_ERRNO;

@@ -1,20 +1,30 @@
 #pragma once
 
 #include "FileBlocks.h"
-#include <queue>
+#include "Job.h"
 
-using IndexBlockQueue = std::queue<IndexBlock>;
-using DataBlockQueue = std::queue<DataBlock>;
+#include <atomic>
+#include <map>
+#include <queue>
 
 class Archiver
 {
 private:
-  IndexBlockQueue indexBlocks;
-  DataBlockQueue dataBlocks;
+  std::wstring source;
+  std::wstring destination;
+  
+  std::atomic<uint64_t> jobNo;
+  std::map<uint64_t, Job> jobs;
+  std::queue<Task> taskQueue;
 
-public:
+  std::queue<IndexBlock> indexQueue;
+  std::queue<DataBlock> dataQueue;
+
   void QueueIndexBlocks(const std::wstring &path);
-  void ProcessIndexBlock(IndexBlock &block);
-  Archiver();
-  ~Archiver();
+  void ProcessIndexBlock(const IndexBlock &block);
+  void CreateTask(Job &job);
+  void ProcessTask();
+  void StartThreads();
+public:
+  void Run(const std::wstring &src, const std::wstring &dest);
 };

@@ -5,19 +5,12 @@
 #include "VssCopy.h"
 #include "CommandLineOptions.h"
 #include "Archiver.h"
+#include "Unarchiver.h"
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <string>
-
-#include <zlib.h>
-#include <fcntl.h>
-#include <io.h>
-#include <codecvt>
-
-extern "C" int def(FILE *source, FILE *dest, int level);
-extern "C" int inf(FILE *source, FILE *dest);
 
 int wmain(int argc, wchar_t* argv[])
 {
@@ -29,21 +22,24 @@ int wmain(int argc, wchar_t* argv[])
   CommandLineOptions options;
   options.Parse(argc, argv);
 
-  Archiver arc;
-  arc.LoadDirectoryBlocks(options.source);
-  
-  FILE *source, *dest;
-  _wfopen_s(&source, options.source.c_str(), L"r");
-  _wfopen_s(&dest, options.destination.c_str(), L"w");
-  _setmode(_fileno(source), _O_BINARY);
-  _setmode(_fileno(dest), _O_BINARY);
-  
-  int rv = (options.command == Command::Archive) ? def(source, dest, -1) :
-	inf(source, dest);
+  switch (options.command)
+  {
+  case Command::Archive:
+	{
+	  Archiver arc;
+	  arc.Run(options.source, options.destination);
+	}
+	break;
 
-  fclose(source);
-  fclose(dest);
+  case Command::Restore:
+	{
+	  Unarchiver unarc;
+	  unarc.Run(options.source, options.destination);
+	}
+	break;
+  }
 
+  
  // CoInitialize(NULL);
  // try
  // {
