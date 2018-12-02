@@ -3,17 +3,18 @@
 #include "FileBlocks.h"
 #include <queue>
 
-using DirBlockQueue = std::queue<DirectoryBlock>;
+using IndexBlockQueue = std::queue<IndexBlock>;
 using DataBlockQueue = std::queue<DataBlock>;
 
 class Archiver
 {
 private:
-  DirBlockQueue dirBlocks;
+  IndexBlockQueue indexBlocks;
   DataBlockQueue dataBlocks;
 
 public:
-  void loadDirBlocks(const std::wstring &path);
+  void QueueIndexBlocks(const std::wstring &path);
+  void ProcessIndexBlock(IndexBlock &block);
   Archiver();
   ~Archiver();
 };
