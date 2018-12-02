@@ -27,7 +27,7 @@
     <ClInclude Include="Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirectoryBlock.h">
+    <ClInclude Include="FileBlocks.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -48,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Archiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileBlocks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
