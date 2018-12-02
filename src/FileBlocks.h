@@ -36,9 +36,10 @@
 // <length> is the length of the data block, <position> is the offset from start of the 
 // next data block for the same file, or zero if there are no more data blocks for this file
 
+
 struct IndexRecord
 {
-  wchar_t type; // H=header, F=file, D=directory
+  short type; // 0=header, 1=file, 2=directory
   uint64_t length;
   short fileNo;
   uint64_t position;
@@ -55,6 +56,7 @@ struct DataBlock
   uint64_t length;
   uint64_t position;
   std::vector<uint8_t> data;
+  std::vector<uint8_t> dataCompressed;
 };
 
 std::wostream& operator<<(std::wostream &os, const IndexRecord &rec);
