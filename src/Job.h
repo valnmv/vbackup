@@ -18,8 +18,8 @@ public:
   std::vector<uint8_t> bufferDecompressed;
   uint64_t srcPos;
   uint64_t destPos;
-  uint32_t srcBufLength;
-  uint32_t destBufLength;
+  uint64_t srcDataLength;
+  uint64_t destDataLength;
   TaskStatus status;
 };
 
@@ -29,4 +29,5 @@ struct Job
   std::wstring file;
   uint32_t taskCount;
   bool done;
+  bool lastTask;
 };
