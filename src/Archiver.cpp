@@ -12,7 +12,7 @@
 #include <filesystem>
 
 
-std::queue<std::filesystem::path> fileQueue;
+//std::queue<std::filesystem::path> fileQueue;
 
 Archiver::Archiver()
 {

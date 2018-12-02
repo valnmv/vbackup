@@ -1,4 +1,4 @@
-// vbackup.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿// vbackup.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include "pch.h"
@@ -6,17 +6,45 @@
 #include "CommandLineOptions.h"
 
 #include <iostream>
+#include <iomanip>
+#include <fstream>
 #include <string>
 
 #include <zlib.h>
 #include <fcntl.h>
 #include <io.h>
+#include <codecvt>
+
+#include "FileBlocks.h"
 
 extern "C" int def(FILE *source, FILE *dest, int level);
 extern "C" int inf(FILE *source, FILE *dest);
 
+//std::string ws2utf8(std::wstring &input)
+//{
+//  std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
+//  return utf8conv.to_bytes(input);
+//}
+//
+//std::wstring utf82ws(std::string &input)
+//{
+//  std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
+//  return utf8conv.from_bytes(input);
+//}
+
 int wmain(int argc, wchar_t* argv[])
 {
+  std::wstring filename = L"абв где \t ЖЗИ \n нов ред";
+  IndexRecord rec{ L'H', 100, 1, 555, static_cast<short>(filename.length()), filename};
+  std::wofstream os(L"data.dat", std::ios::binary);
+  os.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+  os << rec;
+
+  IndexRecord rec2{};
+  std::wifstream is(L"data.dat", std::ios::binary);
+  is.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+  is >> rec2;
+
   // TODO Error handling, test unicode paths
   CommandLineOptions options;
   options.Parse(argc, argv);
