@@ -20,11 +20,12 @@ private:
   std::queue<IndexBlock> indexQueue;
   std::queue<DataBlock> dataQueue;
 
-  void QueueIndexBlocks(const std::wstring &path);
+  void ListFiles(const std::wstring &path);
   void ProcessIndexBlock(const IndexBlock &block);
   void CreateTask(Job &job);
   void ProcessTask();
   void StartThreads();
+  int Compress(Task & task, bool last, int level);
 public:
   void Run(const std::wstring &src, const std::wstring &dest);
 };

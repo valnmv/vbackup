@@ -29,12 +29,12 @@
 // Data files
 // ----------
 // Data file = [data-block] ...
-// Data block = [data-length|next-block-position|data...]
+// Data block = [block-no|data-length|data...]
 //
 // A data file is made up of data blocks containing compressed file data. Each data block 
-// starts with <length> and <position> fields and then compressed data from a file. 
-// <length> is the length of the data block, <position> is the offset from start of the 
-// next data block for the same file, or zero if there are no more data blocks for this file
+// starts with <block-no> and <data-length> fields and then compressed data from a file. 
+// <block-no> is seq. block number for the file that is being compressed, <length> is 
+// the length of the data block
 
 
 struct IndexRecord
@@ -53,8 +53,8 @@ using IndexBlock = std::vector<IndexRecord>;
 
 struct DataBlock
 {
-  uint64_t length;
-  uint64_t positionNext;
+  uint64_t no; // seq.block# for each file
+  uint64_t length; // number of data bytes in the block
   std::vector<uint8_t> data;
 };
 
