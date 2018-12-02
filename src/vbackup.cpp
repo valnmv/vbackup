@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "VssCopy.h"
 #include "CommandLineOptions.h"
+#include "Archiver.h"
 
 #include <iostream>
 #include <iomanip>
@@ -15,40 +16,22 @@
 #include <io.h>
 #include <codecvt>
 
-#include "FileBlocks.h"
-
 extern "C" int def(FILE *source, FILE *dest, int level);
 extern "C" int inf(FILE *source, FILE *dest);
 
-//std::string ws2utf8(std::wstring &input)
-//{
-//  std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
-//  return utf8conv.to_bytes(input);
-//}
-//
-//std::wstring utf82ws(std::string &input)
-//{
-//  std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
-//  return utf8conv.from_bytes(input);
-//}
-
 int wmain(int argc, wchar_t* argv[])
 {
-  std::wstring filename = L"абв где \t ЖЗИ \n нов ред";
-  IndexRecord rec{ L'H', 100, 1, 555, static_cast<short>(filename.length()), filename};
-  std::wofstream os(L"data.dat", std::ios::binary);
-  os.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
-  os << rec;
+  // TODO streams - imbue utf8 / binary
+  //std::wofstream os(L"data.dat", std::ios::binary);
+  //os.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
-  IndexRecord rec2{};
-  std::wifstream is(L"data.dat", std::ios::binary);
-  is.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
-  is >> rec2;
-
-  // TODO Error handling, test unicode paths
+  // TODO Error handling
   CommandLineOptions options;
   options.Parse(argc, argv);
 
+  Archiver arc;
+  arc.loadDirBlocks(options.source);
+  
   FILE *source, *dest;
   _wfopen_s(&source, options.source.c_str(), L"r");
   _wfopen_s(&dest, options.destination.c_str(), L"w");
