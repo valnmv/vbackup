@@ -10,8 +10,8 @@
 #include <queue>
 
 #include "zlib.h"
-
-const int CHUNK = 32768;
+void zerr(int ret);
+const int CHUNK = 128*1024;
 
 void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 {
@@ -56,57 +56,65 @@ void Archiver::ProcessIndexBlock(const IndexBlock &block)
 
         if (static_cast<fs::file_type>(r.type) == fs::file_type::regular)
         {
-            Job job{ ++jobNo, fs::path(header.name) / fs::path(r.name) };
-            jobs[jobNo] = job;
-            CreateTask(job);
-            ProcessTask();
+            CreateJobs(fs::path(header.name) / fs::path(r.name));
         }
     }
 }
 
-void Archiver::CreateTask(Job &job)
+void Archiver::CreateJobs(const std::wstring &path)
 {
-    // TODO lock
-    Task t{ job.no, job.taskCount };
-    ++job.taskCount;
-    taskQueue.push(t);
+    uintmax_t bytesLeft = fs::file_size(path);
+    Job job;
+    job.file = path;
+    job.no = ++jobNo;
+
+    uintmax_t bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
+    bytesLeft -= bytesToRead;
+    while (bytesToRead > 0)
+    {
+        // TODO use fixed number of read buffers!
+        job.inbuf.resize(bytesToRead);
+        std::ifstream is(job.file, std::ios::binary);
+        is.seekg(job.inpos, is.beg);
+        is.read(reinterpret_cast<char*>(&job.inbuf[0]), bytesToRead);
+        assert(bytesToRead == is.gcount()); // TODO change to run-time exception
+        job.inbuf.resize(is.gcount());
+        job.lastJob = is.eof();
+        bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
+        bytesLeft -= bytesToRead;
+
+        // TODO sync
+        jobQueue.push(job);
+        // TODO wait the queue to have no more than N jobs...
+    }
+
+    ProcessJob();
 }
 
-void Archiver::ProcessTask()
+void Archiver::ProcessJob()
 {
-    Task task = taskQueue.front();
-    taskQueue.pop();
-
-    // jobs[t.jobNo].file
-    task.bufferCompressed.resize(CHUNK);
-    task.bufferDecompressed.resize(CHUNK);
-
-    std::ifstream is(jobs[task.jobNo].file, std::ios::binary);
-    is.read(reinterpret_cast<char*>(&task.bufferDecompressed[0]), CHUNK);
-    task.srcDataLength = is.gcount();
-    task.srcPos = is.gcount();
-    bool lastTask = is.eof();
     // TODO sync
-    if (lastTask)
-        jobs[task.jobNo].lastTask = true;
+    Job job = jobQueue.front();
+    jobQueue.pop();
 
-    if (Z_OK != Compress(task, lastTask, -1))
+    if (Z_OK != CompressChunk(job))
     {
         // TODO handle error
     }
 
-    task.status = TaskStatus::Processed;
+    writerQueue.push(job);
 
     // writer thread
-    DataBlock data = dataQueue.front();
-    dataQueue.pop();
-    std::ofstream os(destination, std::ios::binary);
-    os.write(reinterpret_cast<char*>(&data.data[0]), data.length);
-    os.close();
-}
-
-void Archiver::StartThreads()
-{
+    {
+        Job job = writerQueue.front();
+        writerQueue.pop();
+        std::ofstream os(destination, std::ios::binary);
+        os.write(reinterpret_cast<char*>(&job.no), sizeof(job.no));
+        uint64_t len = job.outbuf.size();
+        os.write(reinterpret_cast<char*>(len), sizeof(len));
+        os.write(reinterpret_cast<char*>(&job.outbuf[0]), len);
+        os.close();
+    }
 }
 
 /* Compress from file source to file dest until EOF on source.
@@ -115,7 +123,7 @@ void Archiver::StartThreads()
    level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
-int Archiver::Compress(Task &task, bool last, int level)
+int Archiver::CompressChunk(Job &job)
 {
     int ret, flush;
     unsigned have;
@@ -125,36 +133,53 @@ int Archiver::Compress(Task &task, bool last, int level)
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
-    ret = deflateInit(&strm, level);
+    ret = deflateInit(&strm, compressionLevel);
     if (ret != Z_OK)
         return ret;
 
-    /* compress until end of file */
+    // TODO use fixed read buffers
+    strm.avail_in = static_cast<uInt>(job.inbuf.size());
+    //flush = last ? Z_FINISH : Z_NO_FLUSH;
+    flush = Z_FINISH;
+    strm.next_in = &job.inbuf[0];
+
     do {
-        strm.avail_in = static_cast<uInt>(task.srcDataLength);
-        flush = last ? Z_FINISH : Z_NO_FLUSH;
-        strm.next_in = &task.bufferDecompressed[0];
-
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = &task.bufferCompressed[0];
-            ret = deflate(&strm, flush);    /* no bad return value */
-            assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            have = CHUNK - strm.avail_out;
-
-            DataBlock block;
-            block.no = task.no;
-            block.length = have;
-            block.data.reserve(have);
-            std::copy(task.bufferCompressed.begin(), task.bufferCompressed.begin() + have,
-                back_inserter(block.data));
-            dataQueue.push(block);
-        } while (strm.avail_out == 0);
-        assert(strm.avail_in == 0);     /* all input will be used */
-
-    } while (flush != Z_FINISH);
+        std::size_t prev_out_size = job.outbuf.size();
+        job.outbuf.resize(prev_out_size + CHUNK);
+        strm.avail_out = CHUNK;
+        strm.next_out = &job.outbuf[prev_out_size];
+        ret = deflate(&strm, flush);    /* no bad return value */
+        assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+        have = CHUNK - strm.avail_out;
+    } while (strm.avail_out == 0);
+    assert(strm.avail_in == 0);     /* all input will be used */
 
     /* clean up and return */
     (void)deflateEnd(&strm);
     return Z_OK;
+}
+
+/* report a zlib or i/o error */
+void zerr(int ret)
+{
+    fputs("zpipe: ", stderr);
+    switch (ret) {
+    case Z_ERRNO:
+        if (ferror(stdin))
+            fputs("error reading stdin\n", stderr);
+        if (ferror(stdout))
+            fputs("error writing stdout\n", stderr);
+        break;
+    case Z_STREAM_ERROR:
+        fputs("invalid compression level\n", stderr);
+        break;
+    case Z_DATA_ERROR:
+        fputs("invalid or incomplete deflate data\n", stderr);
+        break;
+    case Z_MEM_ERROR:
+        fputs("out of memory\n", stderr);
+        break;
+    case Z_VERSION_ERROR:
+        fputs("zlib version mismatch!\n", stderr);
+    }
 }

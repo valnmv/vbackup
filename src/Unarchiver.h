@@ -5,12 +5,12 @@
 class Unarchiver
 {
 private:
-  std::wstring source;
-  std::wstring destination;
+    std::wstring source;
+    std::wstring destination;
 
 public:
-  Unarchiver();
-  ~Unarchiver();
-  void Run(const std::wstring & src, const std::wstring & dest);
+    Unarchiver();
+    ~Unarchiver();
+    void Run(const std::wstring & src, const std::wstring & dest);
 };
 

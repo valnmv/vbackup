@@ -27,13 +27,13 @@
     <ClInclude Include="Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileBlocks.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Job.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Unarchiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileBlocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
