@@ -41,7 +41,7 @@ struct IndexRecord
 {
     short type; // 0=header, 1=file, 2=directory
     uint64_t length;
-    short fileNo;
+    uint64_t fileNo;
     uint64_t position;
     std::wstring name;
 

@@ -2,32 +2,17 @@
 
 #include <atomic>
 #include <string>
-#include <queue>
 #include <thread>
 #include <vector>
 
-enum class TaskStatus { Pending, Processed, Done };
-
-class Task
-{
-public:
-  uint64_t jobNo;
-  uint64_t no;
-  std::thread::id threadNo;
-  std::vector<uint8_t> bufferCompressed;
-  std::vector<uint8_t> bufferDecompressed;
-  uint64_t srcPos;
-  uint64_t destPos;
-  uint64_t srcDataLength;
-  uint64_t destDataLength;
-  TaskStatus status;
-};
-
 struct Job
 {
-  uint64_t no;
-  std::wstring file;
-  uint32_t taskCount;
-  bool done;
-  bool lastTask;
+    std::wstring file;
+    uint64_t no = 0;
+    bool done = false;
+    bool lastJob = false;
+    std::vector<uint8_t> inbuf; // TODO use fixed number of read buffers
+    uint64_t inpos = 0;
+    std::vector<uint8_t> outbuf; // TODO use fixed number of write buffers
+    uint64_t outpos = 0;
 };
