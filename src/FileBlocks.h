@@ -42,7 +42,8 @@ struct IndexRecord
     short type; // 0=header, 1=file, 2=directory
     uint64_t length;
     uint64_t fileNo;
-    uint64_t position;
+    uint64_t offset;
+    uint64_t blockCount;
     std::wstring name;
 
     void print(std::wostream& os) const;
@@ -53,7 +54,8 @@ using IndexBlock = std::vector<IndexRecord>;
 
 struct DataBlock
 {
-    uint64_t no; // seq.block# for each file
+    uint64_t fileNo;
+    uint64_t blockNo; // seq.block# for each file
     uint64_t length; // number of data bytes in the block
     std::vector<uint8_t> data;
 };

@@ -8,9 +8,10 @@ private:
     std::wstring source;
     std::wstring destination;
 
+    void ReadBlock();
+    void Decompress();
+
 public:
-    Unarchiver();
-    ~Unarchiver();
     void Run(const std::wstring & src, const std::wstring & dest);
 };
 

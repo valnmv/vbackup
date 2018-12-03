@@ -5,14 +5,6 @@
 #include <io.h>
 extern "C" int inf(FILE *source, FILE *dest);
 
-Unarchiver::Unarchiver()
-{
-}
-
-Unarchiver::~Unarchiver()
-{
-}
-
 void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 {
     source = src;
@@ -27,4 +19,12 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     inf(sourceFile, destFile);
     fclose(sourceFile);
     fclose(destFile);
+}
+
+void Unarchiver::ReadBlock()
+{
+}
+
+void Unarchiver::Decompress()
+{
 }

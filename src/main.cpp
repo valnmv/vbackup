@@ -22,6 +22,9 @@ int wmain(int argc, wchar_t* argv[])
     CommandLineOptions options;
     options.Parse(argc, argv);
 
+    //namespace fs = std::experimental::filesystem;
+    //fs::path p = fs::system_complete(options.destination);
+
     switch (options.command)
     {
     case Command::Archive:
