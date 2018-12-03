@@ -39,23 +39,23 @@
 
 struct IndexRecord
 {
-  short type; // 0=header, 1=file, 2=directory
-  uint64_t length;
-  short fileNo;
-  uint64_t position;
-  std::wstring name;
+    short type; // 0=header, 1=file, 2=directory
+    uint64_t length;
+    short fileNo;
+    uint64_t position;
+    std::wstring name;
 
-  void print(std::wostream& os) const;
-  void read(std::wistream& is);
+    void print(std::wostream& os) const;
+    void read(std::wistream& is);
 };
 
 using IndexBlock = std::vector<IndexRecord>;
 
 struct DataBlock
 {
-  uint64_t no; // seq.block# for each file
-  uint64_t length; // number of data bytes in the block
-  std::vector<uint8_t> data;
+    uint64_t no; // seq.block# for each file
+    uint64_t length; // number of data bytes in the block
+    std::vector<uint8_t> data;
 };
 
 std::wostream& operator<<(std::wostream &os, const IndexRecord &rec);
