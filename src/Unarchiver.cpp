@@ -16,7 +16,7 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 	while (ReadBlock(block))
 	{
 		DecompressChunk(block);
-		os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), inflateBuffer.size());
+		os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
 	}
 }
 
