@@ -17,7 +17,7 @@ private:
     std::wstring destination;
     bool done = false;
 
-    std::atomic<uint64_t> jobNo = 0;
+    std::atomic<uint64_t> jobsCreated = 0;
     std::atomic<uint64_t> jobsWriten = 0;
 
     std::queue<Job> compQueue;

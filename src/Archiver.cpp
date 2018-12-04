@@ -15,9 +15,9 @@
 
 #include "zlib.h"
 void zerr(int ret);
-const int CHUNK = 512*1024;
+const int CHUNK = 256*1024;
 
-const int compressorCount = 1;
+const int compressorCount = 3;
 
 void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 {
@@ -36,10 +36,9 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     ListFiles(source);
 
-    // TODO notify on jobsWritten
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
-    writerQueueFinished.wait(lock, [this]() { return jobNo == jobsWriten; });
+    writerQueueFinished.wait(lock, [this]() { return jobsCreated == jobsWriten; });
     done = true;
     compQueueHasData.notify_all();
     writerQueueHasData.notify_all();
@@ -104,7 +103,7 @@ void Archiver::CreateJobs(const std::wstring &path)
         // TODO use fixed number of read buffers (with fixes sizes?)
         Job job;
         job.file = path;
-        job.no = ++jobNo;
+        job.no = ++jobsCreated;
         job.inbuf.resize(bytesToRead);
         std::ifstream is(job.file, std::ios::binary);
         is.seekg(readpos, is.beg);
@@ -117,10 +116,11 @@ void Archiver::CreateJobs(const std::wstring &path)
         bytesLeft -= bytesToRead;
 
         {
-            std::lock_guard<std::mutex> lock(compQueueMutex);
+            std::unique_lock<std::mutex> lock(compQueueMutex);
+            compQueueHasData.wait(lock, [this] { return done || 
+                compQueue.size() < compressorCount * 2; });
+
             compQueue.push(std::move(job));
-            // TODO wait the queue to have no more than N jobs
-            //...
         }
         compQueueHasData.notify_one();
     }
@@ -141,6 +141,8 @@ void Archiver::Compress()
             job = std::move(compQueue.front());
             compQueue.pop();
         }
+        compQueueHasData.notify_all();
+
         if (Z_OK != CompressChunk(job))
         {
             // TODO show error
