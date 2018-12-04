@@ -48,7 +48,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     writerQueueFinished.wait(lock, [this]() { return jobsCreated == jobsWriten; });
     done = true;
     compQueueHasData.notify_all();
-    writerQueueHasData.notify_all();
+    //writerQueueHasData.notify_all();
 
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
@@ -66,12 +66,12 @@ void Archiver::ListFiles(const std::wstring &path)
     {
         IndexRecord rec{};
         rec.type = static_cast<short>(p.status().type());
-        rec.name = p.path().filename();
         if (p.status().type() == fs::file_type::regular)
         {
             rec.length = fs::file_size(p);
         }
-
+        rec.name = p.path().filename();
+        rec.fileNo = ++filesIndexed;
         indexBlock.push_back(rec);
     }
 
@@ -90,18 +90,17 @@ void Archiver::ProcessIndexBlock(const IndexBlock &block)
 
         if (static_cast<fs::file_type>(rec.type) == fs::file_type::regular)
         {
-			// TODO index block#
-            CreateJobs(fs::path(header.name) / fs::path(rec.name), 0, i);
+			// TODO index block#           
+            CreateJobs(fs::path(header.name) / fs::path(rec.name), rec.fileNo, 0, i);
         }
     }
 }
 
-void Archiver::CreateJobs(const std::wstring &path, const std::size_t indexBlockNo, const std::size_t indexRecNo)
+void Archiver::CreateJobs(const std::wstring &path, const uint64_t fileNo, const std::size_t indexBlockNo, 
+    const std::size_t indexRecNo)
 {
     if (path == destination)
         return;
-
-	++fileNoWriting;
 
     uintmax_t bytesLeft = fs::file_size(path);
     uintmax_t bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
@@ -110,7 +109,7 @@ void Archiver::CreateJobs(const std::wstring &path, const std::size_t indexBlock
     while (bytesToRead > 0)
     {
         // TODO use fixed number of read buffers (with fixes sizes?)
-        Job job{ ++jobsCreated, fileNoWriting, indexBlockNo, indexRecNo };
+        Job job{ ++jobsCreated, fileNo, indexBlockNo, indexRecNo };
         job.inbuf.resize(bytesToRead);
         std::ifstream is(path, std::ios::binary);
         is.seekg(readpos, is.beg);
@@ -184,7 +183,6 @@ void Archiver::Write()
 
 		DataBlock block = DataBlockFromJob(job);
         block.write(destinationStream);
-
         ++jobsWriten;
         writerQueueFinished.notify_one();
     }

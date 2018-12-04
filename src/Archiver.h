@@ -26,6 +26,7 @@ private:
 	
 	bool done = false;
 
+    std::atomic<uint64_t> filesIndexed = 0;
     std::atomic<uint64_t> jobsCreated = 0;
     std::atomic<uint64_t> jobsWriten = 0;
 	std::atomic<uint64_t> fileNoWriting = 0;
@@ -43,7 +44,8 @@ private:
 
     void ListFiles(const std::wstring &path);
     void ProcessIndexBlock(const IndexBlock &block);
-    void CreateJobs(const std::wstring &path, const std::size_t indexBlockNo, const std::size_t indexRecNo);
+    void CreateJobs(const std::wstring &path, const uint64_t fileNo, const std::size_t indexBlockNo,
+        const std::size_t indexRecNo);
     void Compress();
     bool GetCompressJob(Job &job);
     int CompressChunk(Job &job);
