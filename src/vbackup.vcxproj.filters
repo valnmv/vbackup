@@ -39,6 +39,9 @@
     <ClInclude Include="zlib_intf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ArchiveWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zlib_intf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="Archiver.h" />
     <ClInclude Include="CommandLineOptions.h" />
+    <ClInclude Include="ArchiveWriter.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="FileBlocks.h" />
     <ClInclude Include="pch.h" />
@@ -109,6 +110,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ArchiveWriter.cpp" />
     <ClCompile Include="Unarchiver.cpp" />
     <ClCompile Include="VssCopy.cpp" />
     <ClCompile Include="zlib_intf.cpp" />

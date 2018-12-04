@@ -7,34 +7,26 @@
 #include <iostream>
 
 #include <cassert>
-#include <fstream>
 #include <filesystem>
 #include <future>
-#include <queue>
 #include <thread>
 
 #include "zlib_intf.h"
 
 namespace fs = std::experimental::filesystem;
 const int compressorCount = 3;
-DataBlock DataBlockFromJob(const Job &job);
 
-DataBlock DataBlockFromJob(const Job &job)
-{
-    DataBlock block{ job.no, job.inbuf.size(), job.outbuf.size() };
-	block.data = std::move(job.outbuf);
-	return std::move(block);
-}
 
 void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 {
+    auto start = std::chrono::high_resolution_clock::now();
+
     source = src;
     destination = dest;
 
-    auto start = std::chrono::high_resolution_clock::now();
-	destinationStream.open(destination, std::ios::binary | std::ios::app);
+    archiveWriter.Init(destination, &indexBlocks);
+    auto fu = std::async(std::launch::async, &ArchiveWriter::Write, &archiveWriter);
 
-    auto writer = std::async(std::launch::async, &Archiver::Write, this);
     std::vector<std::future<void>> compressors;
     for (int i = 0; i < compressorCount; ++i)
     {
@@ -43,9 +35,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     ListFiles(source);
 
-    std::mutex endMutex;
-    std::unique_lock<std::mutex> lock(endMutex);
-    writerQueueFinished.wait(lock, [this]() { return jobsCreated == jobsWriten; });
+    archiveWriter.Complete(jobsCreated);
     done = true;
     compQueueHasData.notify_all();
     //writerQueueHasData.notify_all();
@@ -145,11 +135,7 @@ void Archiver::Compress()
         {
             // TODO show error
         }
-        {
-            std::lock_guard<std::mutex> lock(writerQueueMutex);
-            writerQueue.push(std::move(job));
-        }
-        writerQueueHasData.notify_one();
+        archiveWriter.PushJob(job);
     } while (!done);
 }
 
@@ -165,44 +151,7 @@ bool Archiver::GetCompressJob(Job &job)
     return true;
 }
 
-// writer thread
-void Archiver::Write()
-{
-    Job job;
-    while (!done)
-    {
-        if (!GetWriteJob(job))
-            break;
-
-		if (job.fileNo != fileNoWriting)
-		{
-			fileNoWriting = job.fileNo;
-			uint64_t pos = destinationStream.tellp();
-			indexBlocks[job.indexBlockNo][job.indexRecNo].offset = pos;
-		}
-
-		DataBlock block = DataBlockFromJob(job);
-        block.write(destinationStream);
-        ++jobsWriten;
-        writerQueueFinished.notify_one();
-    }
-}
-
-bool Archiver::GetWriteJob(Job &job)
-{
-    std::unique_lock<std::mutex> lock(writerQueueMutex);
-    writerQueueHasData.wait(lock, [this] { return done ||
-        (writerQueue.size() > 0 && (jobsWriten + 1 == writerQueue.top().no)); });
-
-    if (done)
-        return false;
-
-    job = std::move(writerQueue.top());
-    writerQueue.pop();
-    return true;
-}
-
 int Archiver::CompressChunk(Job &job)
 {
-	return deflate(compressionLevel, job.inbuf, job.outbuf);
+    return deflate(compressionLevel, job.inbuf, job.outbuf);
 }
