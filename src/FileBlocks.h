@@ -10,31 +10,32 @@
 //
 // Index files
 // -----------
-// Index file = [directory-block] ...
-// Directory block = [header record] [file or directory record] ...
-// Directory block record = [<rec.type> <length> <file#> <position> <name>]
-//
 // An index file contains directory blocks, one for each directory. Each directory block 
 // starts with a header record and contains up to a 1000 records for files and subdirectories.
 //
-// Directory block record = [rec.type|length|name|file#|position]
+// Index file = [directory-block] ...
+// Directory block = [header record] [file or directory record] ...
+// Record = [<rec.type> <length> <file#> <offset> <name>]
+//
 // <rec.type> H=header, F=file, D=directory
 // <length> for header - current dir.block size, for file - file length, for directory - 0
-// <file#> and <position>:
+// <file#> and <offset>:
 // - in header record they point to a next directory block when there are more than 
 //   a 1000 directory entries
-// - in file records these fields define file# and position to the file data in data file
-// - in directory records they define file# and position of directory data in index files
+// - in file records these fields define data file# and offset to the file data in a data file
+// - in directory records they define index file# and position of directory data in index files
 //
 // Data files
 // ----------
 // Data file = [data-block] ...
-// Data block = [block-no|data-length|data...]
+// Data block = [block-no|data-length|orig-length|data...]
 //
 // A data file is made up of data blocks containing compressed file data. Each data block 
 // starts with <block-no> and <data-length> fields and then compressed data from a file. 
-// <block-no> is seq. block number for the file that is being compressed, <length> is 
-// the length of the data block
+// <block-no> is seq. block number for the file that is being compressed
+// <length> is the length of the compressed data block
+// <orig-length> is uncompressed data size
+//
 
 
 struct IndexRecord
@@ -54,10 +55,13 @@ using IndexBlock = std::vector<IndexRecord>;
 
 struct DataBlock
 {
-    uint64_t fileNo;
-    uint64_t blockNo; // seq.block# for each file
+    uint64_t no; // seq.block#
+    uint64_t origLength; // number of data bytes before compression
     uint64_t length; // number of data bytes in the block
     std::vector<uint8_t> data;
+
+    void read(std::ifstream &is);
+    void write(std::ofstream &os);    
 };
 
 std::wostream& operator<<(std::wostream &os, const IndexRecord &rec);

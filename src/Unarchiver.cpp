@@ -1,30 +1,39 @@
 #include "pch.h"
+#include "FileBlocks.h"
 #include "Unarchiver.h"
 
-#include <fcntl.h>
-#include <io.h>
-extern "C" int inf(FILE *source, FILE *dest);
+#include <assert.h>
+#include "zlib_intf.h"
 
 void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 {
     source = src;
     destination = dest;
-    // ---
+	sourceStream.open(source, std::ios::binary);
+	std::ofstream os(dest, std::ios::binary);
 
-    FILE *sourceFile, *destFile;
-    _wfopen_s(&sourceFile, source.c_str(), L"r");
-    _wfopen_s(&destFile, destination.c_str(), L"w");
-    _setmode(_fileno(sourceFile), _O_BINARY);
-    _setmode(_fileno(destFile), _O_BINARY);
-    inf(sourceFile, destFile);
-    fclose(sourceFile);
-    fclose(destFile);
+	DataBlock block;
+	while (ReadBlock(block))
+	{
+		DecompressChunk(block);
+		os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), inflateBuffer.size());
+	}
 }
 
-void Unarchiver::ReadBlock()
+bool Unarchiver::ReadBlock(DataBlock &block)
 {
+	if (sourceStream.eof() || EOF == sourceStream.peek())
+		return false;
+
+	block.read(sourceStream);
+	return true;
 }
 
-void Unarchiver::Decompress()
+int Unarchiver::DecompressChunk(const DataBlock &block)
 {
+	if (inflateBuffer.size() < block.origLength)
+		inflateBuffer.resize(block.origLength);
+
+	return inflate(block.data, inflateBuffer);
 }
+

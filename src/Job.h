@@ -7,9 +7,11 @@
 
 struct Job
 {
-    std::wstring file;
-    uint64_t no = 0;
-    std::vector<uint8_t> inbuf; // TODO use fixed number of read buffers
-    std::vector<uint8_t> outbuf; // TODO use fixed number of write buffers
-    uint64_t outpos = 0;
+    uint64_t no = 0; // seq. job#
+	uint64_t fileNo = 0;
+	std::size_t indexBlockNo = 0; // index block#
+	std::size_t indexRecNo = 0; // record# in index block
+	uint64_t filepos = 0;
+	std::vector<uint8_t> inbuf;
+    std::vector<uint8_t> outbuf;
 };

@@ -97,6 +97,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Unarchiver.h" />
     <ClInclude Include="VssCopy.h" />
+    <ClInclude Include="zlib_intf.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Archiver.cpp" />
@@ -110,10 +111,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Unarchiver.cpp" />
     <ClCompile Include="VssCopy.cpp" />
-    <ClCompile Include="zpipe.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="zlib_intf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

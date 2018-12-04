@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <fstream>
 #include <map>
 #include <mutex>
 #include <queue>
@@ -18,19 +19,22 @@ class Archiver
 {
 private:
     int compressionLevel = -1;
-    std::wstring source;
+
+	std::wstring source;
     std::wstring destination;
-    bool done = false;
+	std::ofstream destinationStream;
+	
+	bool done = false;
 
     std::atomic<uint64_t> jobsCreated = 0;
     std::atomic<uint64_t> jobsWriten = 0;
+	std::atomic<uint64_t> fileNoWriting = 0;
 
     std::queue<Job> compQueue;
     std::mutex compQueueMutex;
     std::condition_variable compQueueHasData;
 
-    //std::vector<DataBlock> dataBlocks;
-    std::queue<IndexBlock> indexQueue;
+    std::vector<IndexBlock> indexBlocks;
 
     std::priority_queue<Job, std::vector<Job>, CompareJob> writerQueue;
     std::mutex writerQueueMutex;
@@ -39,11 +43,12 @@ private:
 
     void ListFiles(const std::wstring &path);
     void ProcessIndexBlock(const IndexBlock &block);
-    void CreateJobs(const std::wstring &path);
+    void CreateJobs(const std::wstring &path, const std::size_t indexBlockNo, const std::size_t indexRecNo);
     void Compress();
-    int CompressChunk(Job &task);
+    bool GetCompressJob(Job &job);
+    int CompressChunk(Job &job);
     void Write();
+    bool GetWriteJob(Job &job);
 public:
     void Run(const std::wstring &src, const std::wstring &dest);
 };
-
