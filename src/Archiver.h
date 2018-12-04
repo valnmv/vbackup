@@ -9,6 +9,11 @@
 #include <mutex>
 #include <queue>
 
+struct CompareJob
+{
+    bool operator() (const Job &lhs, const Job &rhs) { return lhs.no > rhs.no; }
+};
+
 class Archiver
 {
 private:
@@ -27,7 +32,7 @@ private:
     //std::vector<DataBlock> dataBlocks;
     std::queue<IndexBlock> indexQueue;
 
-    std::queue<Job> writerQueue;
+    std::priority_queue<Job, std::vector<Job>, CompareJob> writerQueue;
     std::mutex writerQueueMutex;
     std::condition_variable writerQueueHasData;
     std::condition_variable writerQueueFinished;
@@ -41,3 +46,4 @@ private:
 public:
     void Run(const std::wstring &src, const std::wstring &dest);
 };
+

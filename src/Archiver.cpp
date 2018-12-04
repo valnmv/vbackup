@@ -111,7 +111,7 @@ void Archiver::CreateJobs(const std::wstring &path)
         assert(bytesToRead == is.gcount()); // TODO change to run-time exception
         readpos += bytesToRead;
         job.inbuf.resize(is.gcount());
-        job.lastJob = is.eof();
+        //job.lastJob = is.eof();
         bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
         bytesLeft -= bytesToRead;
 
@@ -161,15 +161,19 @@ void Archiver::Write()
     while (!done)
     {
         Job job;
-        // TODO MUST use priority queue by job#!
         {
             std::unique_lock<std::mutex> lock(writerQueueMutex);
             writerQueueHasData.wait(lock, [this] { return done || writerQueue.size() > 0; });
             if (done)
                 break;
 
-            job = std::move(writerQueue.front());
-            writerQueue.pop();
+            if (jobsWriten + 1 == writerQueue.top().no)
+            {
+                job = std::move(writerQueue.top());
+                writerQueue.pop();
+            }
+            else 
+                continue;
         }
 
         std::ofstream os(destination, std::ios::binary | std::ios::app);
