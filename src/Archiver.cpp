@@ -25,7 +25,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     destination = dest;
 
     archiveWriter.Init(destination, &indexBlocks);
-    auto fu = std::async(std::launch::async, &ArchiveWriter::Write, &archiveWriter);
+    auto fu = std::async(std::launch::async, &BlockWriter::Write, &archiveWriter);
 
     std::vector<std::future<void>> compressors;
     for (int i = 0; i < compressorCount; ++i)

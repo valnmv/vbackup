@@ -39,7 +39,7 @@
     <ClInclude Include="zlib_intf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArchiveWriter.h">
+    <ClInclude Include="BlockWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,7 +71,7 @@
     <ClCompile Include="zlib_intf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArchiveWriter.cpp">
+    <ClCompile Include="BlockWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

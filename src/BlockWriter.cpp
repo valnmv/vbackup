@@ -1,24 +1,17 @@
 #include "pch.h"
-#include "ArchiveWriter.h"
+#include "BlockWriter.h"
 
-DataBlock DataBlockFromJob(const Job &job)
-{
-    DataBlock block{ job.no, job.inbuf.size(), job.outbuf.size() };
-    block.data = std::move(job.outbuf);
-    return std::move(block);
-}
-
-void ArchiveWriter::Init(const std::wstring &filename, std::vector<IndexBlock> *index)
+void BlockWriter::Init(const std::wstring &filename, std::vector<IndexBlock> *index)
 {
     fileIndex = index;
     stream.open(filename, std::ios::binary | std::ios::app);
 }
 
-void ArchiveWriter::Write()
+void BlockWriter::Write()
 {
-    Job job;
     while (!stop)
     {
+        Job job;
         if (!PopJob(job))
             break;
 
@@ -36,33 +29,41 @@ void ArchiveWriter::Write()
     }
 }
 
-void ArchiveWriter::PushJob(const Job &job)
+void BlockWriter::PushJob(const Job &job)
 {
     {
         std::lock_guard<std::mutex> lock(queueMutex);
-        writerQueue.push(std::move(job));
+        writeQueue.push(std::move(job));
     }
     queueDataCond.notify_all();
 }
 
-void ArchiveWriter::Complete(uint64_t jobCount)
+void BlockWriter::Complete(uint64_t jobCount)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
     queueDataCond.wait(lock, [this, jobCount]() { return jobsWriten == jobCount; });
     stream.close();
     stop = true;
+    queueDataCond.notify_all();
 }
 
-bool ArchiveWriter::PopJob(Job &job)
+bool BlockWriter::PopJob(Job &job)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
     queueDataCond.wait(lock, [this] { return stop ||
-        (writerQueue.size() > 0 && (jobsWriten + 1 == writerQueue.top().no)); });
+        (writeQueue.size() > 0 && (jobsWriten + 1 == writeQueue.top().no)); });
 
     if (stop)
         return false;
 
-    job = std::move(writerQueue.top());
-    writerQueue.pop();
+    job = std::move(writeQueue.top());
+    writeQueue.pop();
     return true;
+}
+
+DataBlock BlockWriter::DataBlockFromJob(const Job &job)
+{
+    DataBlock block{ job.no, job.inbuf.size(), job.outbuf.size() };
+    block.data = std::move(job.outbuf);
+    return std::move(block);
 }

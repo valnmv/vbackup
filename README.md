@@ -14,7 +14,6 @@
 * Archive and restore file security attributes
 
 ### Design
-![Jobs and tasks](./docs/design.jpg)
 
 ### Useful information / code examples
 

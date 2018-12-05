@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ArchiveWriter.h"
+#include "BlockWriter.h"
 #include "FileBlocks.h"
 #include "Job.h"
 
@@ -25,7 +25,7 @@ private:
     std::mutex compQueueMutex;
     std::condition_variable compQueueHasData;
     std::vector<IndexBlock> indexBlocks;
-    ArchiveWriter archiveWriter;
+    BlockWriter archiveWriter;
 
     void ListFiles(const std::wstring &path);
     void ProcessIndexBlock(const IndexBlock &block);
