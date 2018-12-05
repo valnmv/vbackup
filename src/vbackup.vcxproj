@@ -93,6 +93,7 @@
     <ClInclude Include="Archiver.h" />
     <ClInclude Include="CommandLineOptions.h" />
     <ClInclude Include="BlockWriter.h" />
+    <ClInclude Include="Compressor.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="FileBlocks.h" />
     <ClInclude Include="pch.h" />
@@ -103,6 +104,7 @@
   <ItemGroup>
     <ClCompile Include="Archiver.cpp" />
     <ClCompile Include="CommandLineOptions.cpp" />
+    <ClCompile Include="Compressor.cpp" />
     <ClCompile Include="Job.cpp" />
     <ClCompile Include="FileBlocks.cpp" />
     <ClCompile Include="pch.cpp">

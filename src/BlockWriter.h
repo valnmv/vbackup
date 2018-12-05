@@ -20,7 +20,7 @@ private:
     std::ofstream stream;
     std::priority_queue<Job, std::vector<Job>, CompareJob> writeQueue;
     std::mutex queueMutex;
-    std::condition_variable queueDataCond;
+    std::condition_variable queueCond;
     std::atomic<uint64_t> jobsWriten = 0;
     std::atomic<uint64_t> fileNoWriting = 0;
     std::vector<IndexBlock> *fileIndex;
@@ -29,7 +29,7 @@ private:
     bool PopJob(Job &job);
 public:
     void Init(const std::wstring &filename, std::vector<IndexBlock> *index);
-    void Write();
-    void PushJob(const Job &job);
+    void WriteLoop();
+    void PushJob(Job &job);
     void Complete(uint64_t jobCount);
 };

@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "Archiver.h"
+#include "zlib_intf.h" // for CHUNK
 
 #include <iostream>
 
@@ -11,11 +12,9 @@
 #include <future>
 #include <thread>
 
-#include "zlib_intf.h"
-
-namespace fs = std::experimental::filesystem;
 const int compressorCount = 3;
 
+namespace fs = std::experimental::filesystem;
 
 void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 {
@@ -24,20 +23,15 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     source = src;
     destination = dest;
 
-    archiveWriter.Init(destination, &indexBlocks);
-    auto fu = std::async(std::launch::async, &BlockWriter::Write, &archiveWriter);
+    writer.Init(destination, &indexBlocks);
+    auto fu = std::async(std::launch::async, &BlockWriter::WriteLoop, &writer);
 
-    std::vector<std::future<void>> compressors;
-    for (int i = 0; i < compressorCount; ++i)
-    {
-        compressors.push_back(std::async(std::launch::async, &Archiver::Compress, this));
-    }
+    compressor.StartThreads(&writer, compressorCount);
 
     ListFiles(source);
-
-    archiveWriter.Complete(jobsCreated);
+    writer.Complete(jobsCreated);
     done = true;
-    compQueueHasData.notify_all();
+    compressor.Complete();
     //writerQueueHasData.notify_all();
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -110,48 +104,6 @@ void Archiver::CreateJobs(const std::wstring &path, const uint64_t fileNo, const
         bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
         bytesLeft -= bytesToRead;
 
-        {
-            std::unique_lock<std::mutex> lock(compQueueMutex);
-            compQueueHasData.wait(lock, [this] { return done || 
-                compQueue.size() < compressorCount * 2; });
-
-            compQueue.push(std::move(job));
-        }
-        compQueueHasData.notify_one();
+        compressor.PushJob(job);
     }
-}
-
-// compressor thread
-void Archiver::Compress()
-{
-    do
-    {
-        Job job;
-        if (!GetCompressJob(job))
-            break;
-
-        compQueueHasData.notify_all();
-        if (0 != CompressChunk(job))
-        {
-            // TODO show error
-        }
-        archiveWriter.PushJob(job);
-    } while (!done);
-}
-
-bool Archiver::GetCompressJob(Job &job)
-{
-    std::unique_lock<std::mutex> lock(compQueueMutex);
-    compQueueHasData.wait(lock, [this] { return done || compQueue.size() > 0; });
-    if (done)
-        return false;
-
-    job = std::move(compQueue.front());
-    compQueue.pop();
-    return true;
-}
-
-int Archiver::CompressChunk(Job &job)
-{
-    return deflate(compressionLevel, job.inbuf, job.outbuf);
 }

@@ -7,7 +7,7 @@ void BlockWriter::Init(const std::wstring &filename, std::vector<IndexBlock> *in
     stream.open(filename, std::ios::binary | std::ios::app);
 }
 
-void BlockWriter::Write()
+void BlockWriter::WriteLoop()
 {
     while (!stop)
     {
@@ -25,32 +25,32 @@ void BlockWriter::Write()
         DataBlock block = DataBlockFromJob(job);
         block.write(stream);
         ++jobsWriten;
-        queueDataCond.notify_all();
+        queueCond.notify_all();
     }
 }
 
-void BlockWriter::PushJob(const Job &job)
+void BlockWriter::PushJob(Job &job)
 {
     {
         std::lock_guard<std::mutex> lock(queueMutex);
         writeQueue.push(std::move(job));
     }
-    queueDataCond.notify_all();
+    queueCond.notify_all();
 }
 
 void BlockWriter::Complete(uint64_t jobCount)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
-    queueDataCond.wait(lock, [this, jobCount]() { return jobsWriten == jobCount; });
+    queueCond.wait(lock, [this, jobCount]() { return jobsWriten == jobCount; });
     stream.close();
     stop = true;
-    queueDataCond.notify_all();
+    queueCond.notify_all();
 }
 
 bool BlockWriter::PopJob(Job &job)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
-    queueDataCond.wait(lock, [this] { return stop ||
+    queueCond.wait(lock, [this] { return stop ||
         (writeQueue.size() > 0 && (jobsWriten + 1 == writeQueue.top().no)); });
 
     if (stop)
