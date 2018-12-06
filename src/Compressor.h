@@ -1,11 +1,13 @@
 #pragma once
 
-#include "BlockWriter.h"
+#include "Job.h"
 
 #include <condition_variable>
+#include <functional>
 #include <future>
 #include <mutex>
 #include <queue>
+#include <vector>
 
 class Compressor
 {
@@ -17,14 +19,14 @@ private:
     std::condition_variable queueCond;
     std::vector<std::future<void>> futures;
     bool stop = false;
-    int threadCount;
-    BlockWriter *writer;
+    int threadCount = 0;
+	std::function<void(Job &)> EnqueueWriterJob;
 
-    bool GetCompressJob(Job &job);
+    bool GetJob(Job &job);
     int CompressChunk(Job &job);
     void CompressLoop();
 public:
-    void StartThreads(BlockWriter *blockWriter, int count);
-    void PushJob(Job &job);
+    void Start(int count, const std::function<void(Job &)> &writerEnqueueFunc);
+    void Enqueue(Job &job);
     void Complete();
 };

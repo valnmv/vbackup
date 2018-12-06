@@ -1,10 +1,14 @@
 #include "pch.h"
 #include "BlockWriter.h"
+#include "FileBlocks.h"
 
-void BlockWriter::Init(const std::wstring &filename, std::vector<IndexBlock> *index)
+void BlockWriter::Start(const std::wstring &filename, const SetOffsetFunction &offsetFunc,
+	const WriteJobFinishedFunction &jobFinishedFunction)
 {
-    fileIndex = index;
-    stream.open(filename, std::ios::binary | std::ios::app);
+	SetFileOffset = offsetFunc;
+	WriteJobFinished = jobFinishedFunction;
+    stream.open(filename, std::ios::binary);
+	future = std::async(std::launch::async, &BlockWriter::WriteLoop, this);
 }
 
 void BlockWriter::WriteLoop()
@@ -12,28 +16,30 @@ void BlockWriter::WriteLoop()
     while (!stop)
     {
         Job job;
-        if (!PopJob(job))
+        if (!GetJob(job))
             break;
 
         if (job.fileNo != fileNoWriting)
         {
             fileNoWriting = job.fileNo;
             uint64_t pos = stream.tellp();
-            (*fileIndex)[job.indexBlockNo][job.indexRecNo].offset = pos;
+			SetFileOffset(job.indexBlockNo, job.indexRecNo, pos);
         }
 
-        DataBlock block = DataBlockFromJob(job);
+		DataBlock block{ job.no, job.inbuf.size(), job.outbuf.size(), std::move(job.outbuf) };
         block.write(stream);
         ++jobsWriten;
         queueCond.notify_all();
+        if (job.lastFileJob)
+		    WriteJobFinished(job);
     }
 }
 
-void BlockWriter::PushJob(Job &job)
+void BlockWriter::Enqueue(Job &job)
 {
     {
         std::lock_guard<std::mutex> lock(queueMutex);
-        writeQueue.push(std::move(job));
+        queue.push(std::move(job));
     }
     queueCond.notify_all();
 }
@@ -47,23 +53,16 @@ void BlockWriter::Complete(uint64_t jobCount)
     queueCond.notify_all();
 }
 
-bool BlockWriter::PopJob(Job &job)
+bool BlockWriter::GetJob(Job &job)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
     queueCond.wait(lock, [this] { return stop ||
-        (writeQueue.size() > 0 && (jobsWriten + 1 == writeQueue.top().no)); });
+        (queue.size() > 0 && (jobsWriten + 1 == queue.top().no)); });
 
     if (stop)
         return false;
 
-    job = std::move(writeQueue.top());
-    writeQueue.pop();
+    job = std::move(queue.top());
+    queue.pop();
     return true;
-}
-
-DataBlock BlockWriter::DataBlockFromJob(const Job &job)
-{
-    DataBlock block{ job.no, job.inbuf.size(), job.outbuf.size() };
-    block.data = std::move(job.outbuf);
-    return std::move(block);
 }

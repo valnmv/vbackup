@@ -14,16 +14,9 @@
 
 int wmain(int argc, wchar_t* argv[])
 {
-    // TODO streams - imbue utf8 / binary
-    //std::wofstream os(L"data.dat", std::ios::binary);
-    //os.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
-
     // TODO Error handling
     CommandLineOptions options;
     options.Parse(argc, argv);
-
-    //namespace fs = std::experimental::filesystem;
-    //fs::path p = fs::system_complete(options.destination);
 
     switch (options.command)
     {

@@ -15,7 +15,7 @@
 //
 // Index file = [directory-block] ...
 // Directory block = [header record] [file or directory record] ...
-// Record = [<rec.type> <length> <file#> <offset> <name>]
+// Record = [<rec.type> <length> <file#> <offset> <last-datablock#> <name>]
 //
 // <rec.type> H=header, F=file, D=directory
 // <length> for header - current dir.block size, for file - file length, for directory - 0
@@ -44,14 +44,22 @@ struct IndexRecord
     uint64_t length;
     uint64_t fileNo;
     uint64_t offset;
-    uint64_t blockCount;
+    uint64_t lastBlockNo; // last datablock#
     std::wstring name;
 
     void print(std::wostream& os) const;
     void read(std::wistream& is);
 };
 
-using IndexBlock = std::vector<IndexRecord>;
+struct IndexBlock
+{	
+	uint64_t no;
+	std::vector<IndexRecord> records;
+	void AddRecord(IndexRecord &rec) { records.push_back(std::move(rec)); }
+
+    void print(std::wostream& os) const;
+    void read(std::wistream& is);
+};
 
 struct DataBlock
 {
@@ -60,9 +68,12 @@ struct DataBlock
     uint64_t length; // number of data bytes in the block
     std::vector<uint8_t> data;
 
-    void read(std::ifstream &is);
-    void write(std::ofstream &os);    
+    void read(std::istream &is);
+    void write(std::ostream &os);    
 };
 
 std::wostream& operator<<(std::wostream &os, const IndexRecord &rec);
 std::wistream& operator>>(std::wistream &is, IndexRecord &rec);
+
+std::wostream& operator<<(std::wostream &os, const IndexBlock &block);
+std::wistream& operator>>(std::wistream &is, IndexBlock &rec);

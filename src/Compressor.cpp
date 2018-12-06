@@ -5,10 +5,11 @@
 
 #include <cassert>
 
-void Compressor::StartThreads(BlockWriter *blockWriter, int count)
+// start compression threads
+void Compressor::Start(int count, const std::function<void(Job &)> &writerEnqueueFunc)
 {
     assert(futures.empty());
-    writer = blockWriter;
+	EnqueueWriterJob = writerEnqueueFunc;
     threadCount = count;
     for (int i = 0; i < count; ++i)
     {
@@ -16,18 +17,18 @@ void Compressor::StartThreads(BlockWriter *blockWriter, int count)
     }
 }
 
-void Compressor::PushJob(Job &job)
+void Compressor::Enqueue(Job &job)
 {
     {
         std::unique_lock<std::mutex> lock(queueMutex);
-        queueCond.wait(lock, [this] { return  // done ||
-            queue.size() < threadCount * 2; });
-
-        queue.push(std::move(job));
+        queueCond.wait(lock, [this] { return  stop || (queue.size() < threadCount * 2); });
+		if (!stop)
+			queue.push(std::move(job));
     }
     queueCond.notify_one();
 }
 
+// stop compression threads
 void Compressor::Complete()
 {
     stop = true;
@@ -39,30 +40,31 @@ void Compressor::Complete()
 // compressor thread
 void Compressor::CompressLoop()
 {
-    do
+	while (!stop)
     {
         Job job;
-        if (!GetCompressJob(job))
+        if (!GetJob(job))
             break;
 
-        queueCond.notify_all();
         if (0 != CompressChunk(job))
-        {
-            // TODO show error
+        { // TODO show error
         }
-        writer->PushJob(job);
-    } while (!stop);
+		EnqueueWriterJob(job);
+    }
 }
 
-bool Compressor::GetCompressJob(Job &job)
+bool Compressor::GetJob(Job &job)
 {
-    std::unique_lock<std::mutex> lock(queueMutex);
-    queueCond.wait(lock, [this] { return stop || queue.size() > 0; });
-    if (stop)
-        return false;
+	{
+		std::unique_lock<std::mutex> lock(queueMutex);
+		queueCond.wait(lock, [this] { return stop || queue.size() > 0; });
+		if (stop)
+			return false;
 
-    job = std::move(queue.front());
-    queue.pop();
+		job = std::move(queue.front());
+		queue.pop();
+	}
+	queueCond.notify_all();
     return true;
 }
 

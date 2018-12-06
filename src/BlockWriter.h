@@ -1,11 +1,13 @@
 #pragma once
 
-#include "FileBlocks.h"
+
 #include "Job.h"
 
 #include <atomic>
 #include <condition_variable>
 #include <fstream>
+#include <functional>
+#include <future>
 #include <map>
 #include <queue>
 
@@ -14,22 +16,27 @@ struct CompareJob
     bool operator() (const Job &lhs, const Job &rhs) { return lhs.no > rhs.no; }
 };
 
+using SetOffsetFunction = std::function<void(std::size_t, std::size_t, uintmax_t)>;
+using WriteJobFinishedFunction = std::function<void(const Job &)>;
+
 class BlockWriter
 {
 private:
     std::ofstream stream;
-    std::priority_queue<Job, std::vector<Job>, CompareJob> writeQueue;
+    std::priority_queue<Job, std::vector<Job>, CompareJob> queue;
     std::mutex queueMutex;
     std::condition_variable queueCond;
     std::atomic<uint64_t> jobsWriten = 0;
     std::atomic<uint64_t> fileNoWriting = 0;
-    std::vector<IndexBlock> *fileIndex;
+	std::future<void> future;
     bool stop = false;
-    DataBlock DataBlockFromJob(const Job &job);
-    bool PopJob(Job &job);
+	SetOffsetFunction SetFileOffset;
+	std::function<void(const Job &)> WriteJobFinished;
+    bool GetJob(Job &job);
 public:
-    void Init(const std::wstring &filename, std::vector<IndexBlock> *index);
+    void Start(const std::wstring &filename, const SetOffsetFunction &offsetFunc,
+		const WriteJobFinishedFunction &jobFinishedFunction);
     void WriteLoop();
-    void PushJob(Job &job);
+    void Enqueue(Job &job);
     void Complete(uint64_t jobCount);
 };

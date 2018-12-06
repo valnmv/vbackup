@@ -27,7 +27,6 @@ int deflate(int compressionLevel, std::vector<uint8_t> &inbuf, std::vector<uint8
 	if (ret != Z_OK)
 		return ret;
 
-	// TODO use fixed read buffers
 	strm.avail_in = static_cast<uInt>(inbuf.size());
 	//flush = last ? Z_FINISH : Z_NO_FLUSH;
 	flush = Z_FINISH;
@@ -98,8 +97,7 @@ int inflate(const std::vector<uint8_t> &inbuf, std::vector<uint8_t> &outbuf)
 				return ret;
 			}
 			have = CHUNK - strm.avail_out;
-			// TODO handle output buffer flush		
-			//if (fwrite(out, 1, have, dest) != have || ferror(dest)) { ...
+			// TODO handle output buffer flush?
 		} while (strm.avail_out == 0);
 
 		/* done when inflate() says it's done */

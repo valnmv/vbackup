@@ -2,30 +2,66 @@
 #include "FileBlocks.h"
 #include "Unarchiver.h"
 
-#include <assert.h>
+#include <cassert>
+#include <filesystem>
+
 #include "zlib_intf.h"
+
+namespace fs = std::experimental::filesystem;
 
 void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 {
-    source = src;
+    dataFile = src;
     destination = dest;
-	sourceStream.open(source, std::ios::binary);
-	std::ofstream os(dest, std::ios::binary);
+    indexFile = dataFile + L".i";
+    dataStream.open(dataFile, std::ios::binary);
+    indexStream.open(indexFile);
+    indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
-	DataBlock block;
-	while (ReadBlock(block))
-	{
-		DecompressChunk(block);
-		os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
-	}
+    IndexBlock indexBlock;
+    while (ReadIndexBlock(indexBlock))
+    {
+        ProcessIndexBlock(indexBlock);
+    }
 }
 
-bool Unarchiver::ReadBlock(DataBlock &block)
+void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
 {
-	if (sourceStream.eof() || EOF == sourceStream.peek())
+    std::ofstream os(path, std::ios::binary);
+    dataStream.seekg(rec.offset);
+
+    DataBlock block;
+    while (ReadDataBlock(block))
+    {
+        DecompressChunk(block);
+        os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
+        if (block.no == rec.lastBlockNo)
+            break;
+    }
+}
+
+void Unarchiver::ProcessIndexBlock(const IndexBlock &index)
+{
+    fs::path dir = index.records[0].name;
+    dir = destination / dir.relative_path();
+    fs::create_directories(dir);
+
+    for (const auto &r : index.records)
+    {
+        if (r.type == static_cast<short>(fs::file_type::directory))
+            fs::create_directories(r.name);
+
+        if (r.type == static_cast<short>(fs::file_type::regular))
+            RestoreFile((dir) / fs::path(r.name), r);
+    }
+}
+
+bool Unarchiver::ReadDataBlock(DataBlock &block)
+{
+	if (dataStream.eof() || EOF == dataStream.peek())
 		return false;
 
-	block.read(sourceStream);
+	block.read(dataStream);
 	return true;
 }
 
@@ -37,3 +73,11 @@ int Unarchiver::DecompressChunk(const DataBlock &block)
 	return inflate(block.data, inflateBuffer);
 }
 
+bool Unarchiver::ReadIndexBlock(IndexBlock &block)
+{
+    if (indexStream.eof())
+        return false;
+
+    block.read(indexStream);
+    return true;
+}
