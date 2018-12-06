@@ -31,7 +31,7 @@ private:
 	std::future<void> future;
     bool stop = false;
 	SetOffsetFunction SetFileOffset;
-	std::function<void(const Job &)> WriteJobFinished;
+    WriteJobFinishedFunction WriteJobFinished;
     bool GetJob(Job &job);
 public:
     void Start(const std::wstring &filename, const SetOffsetFunction &offsetFunc,

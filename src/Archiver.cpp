@@ -30,25 +30,13 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 		indexBlocks[blockNo]->records[recNo].offset = offset;
 	};
 
-	auto writeJobFinished = [this](const Job &job)
-	{
-		std::vector<IndexRecord> &recs = indexBlocks[job.indexBlockNo]->records;
-		recs[job.indexRecNo].lastBlockNo = job.no;
-		// all files processed?
-		bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) { 
-			return (r.type != static_cast<short>(fs::file_type::regular)) || 
-				(r.lastBlockNo != 0); });
+    auto writeJobFinished = [this](const Job& job) { WriteJobFinished(job); };
 
-        if (done)
-            indexStream << *indexBlocks[job.indexBlockNo];
-	};
-
+    int compressorCount = std::thread::hardware_concurrency();
     Compressor compressor;
     BlockWriter writer;
     EnqueueCompressorJob = [&compressor](Job &job) { compressor.Enqueue(job); };
-
     writer.Start(dataFile, setFileOffset, writeJobFinished);
-    int compressorCount = std::thread::hardware_concurrency();
     compressor.Start(compressorCount - 1, [&writer](Job &job) { writer.Enqueue(job); });
 
     ListFiles(source);
@@ -128,3 +116,16 @@ void Archiver::ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uintma
 	assert(bytes == is.gcount()); // TODO change to run-time exception
 	buffer.resize(is.gcount());
 }
+
+void Archiver::WriteJobFinished(const Job &job)
+{
+    std::vector<IndexRecord> &recs = indexBlocks[job.indexBlockNo]->records;
+    recs[job.indexRecNo].lastBlockNo = job.no;
+    // all files processed?
+    bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) {
+        return (r.type != static_cast<short>(fs::file_type::regular)) ||
+            (r.lastBlockNo != 0); });
+
+    if (done)
+        indexStream << *indexBlocks[job.indexBlockNo];
+};

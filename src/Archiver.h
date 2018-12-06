@@ -30,6 +30,7 @@ private:
     void CreateJobs(const std::wstring &path, const uint64_t fileNo, const std::size_t indexBlockNo,
         const std::size_t indexRecNo);
 	void ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uintmax_t bytes);
+    void WriteJobFinished(const Job & job);
 public:
     void Run(const std::wstring &src, const std::wstring &dest);
 };
