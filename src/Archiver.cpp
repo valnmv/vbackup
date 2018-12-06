@@ -5,6 +5,7 @@
 #include "Archiver.h"
 #include "BlockWriter.h"
 #include "Compressor.h"
+#include "ProgressIndicator.h"
 
 #include "zlib_intf.h" // for CHUNK
 #include <iostream>
@@ -15,26 +16,29 @@
 
 namespace fs = std::experimental::filesystem;
 
-void Archiver::Run(const std::wstring &src, const std::wstring &dest)
+void Archiver::Init(const std::wstring &src, const std::wstring &dest)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     source = src;
     dataFile = dest;
     indexFile = dataFile + L".i";
     indexStream.open(indexFile);
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+    compressorCount = std::thread::hardware_concurrency();
+}
 
-	auto setFileOffset = [this](size_t blockNo, size_t recNo, uintmax_t offset)
-	{
-		indexBlocks[blockNo]->records[recNo].offset = offset;
-	};
-
-    auto writeJobFinished = [this](const Job& job) { WriteJobFinished(job); };
-
-    int compressorCount = std::thread::hardware_concurrency();
+void Archiver::Run(const std::wstring &src, const std::wstring &dest)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    Init(src, dest);
     Compressor compressor;
     BlockWriter writer;
+    ProgressIndicator indicator;
+
+    auto writeJobFinished = [this, &indicator](const Job& job) { WriteJobFinished(job);
+        indicator.Update(static_cast<float>(static_cast<long double>(bytesCompressed) / totalBytes));  };
+    auto setFileOffset = [this](size_t blockNo, size_t recNo, uintmax_t offset) {
+        indexBlocks[blockNo]->records[recNo].offset = offset; };
+
     EnqueueCompressorJob = [&compressor](Job &job) { compressor.Enqueue(job); };
     writer.Start(dataFile, setFileOffset, writeJobFinished);
     compressor.Start(compressorCount - 1, [&writer](Job &job) { writer.Enqueue(job); });
@@ -44,8 +48,8 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     compressor.Complete();
 
     auto finish = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = finish - start;
-    std::cout << elapsed.count();
+    auto elapsed = std::chrono::duration_cast<std::chrono::seconds> (finish - start);
+    std::cout << std::endl << elapsed.count() << " sec" << std::endl;
 }
 
 void Archiver::ListFiles(const std::wstring &path)
@@ -66,6 +70,7 @@ void Archiver::ListFiles(const std::wstring &path)
         if (p.status().type() == fs::file_type::regular)
         {
             rec.length = fs::file_size(p);
+            totalBytes += rec.length;
         }
         rec.name = p.path().filename();
         rec.fileNo = ++filesIndexed;
@@ -119,8 +124,11 @@ void Archiver::ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uintma
 
 void Archiver::WriteJobFinished(const Job &job)
 {
-    std::vector<IndexRecord> &recs = indexBlocks[job.indexBlockNo]->records;
-    recs[job.indexRecNo].lastBlockNo = job.no;
+    auto &recs = indexBlocks[job.indexBlockNo]->records;
+    auto &rec = recs[job.indexRecNo];
+    rec.lastBlockNo = job.no;
+    bytesCompressed += rec.length;
+
     // all files processed?
     bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) {
         return (r.type != static_cast<short>(fs::file_type::regular)) ||
@@ -128,4 +136,4 @@ void Archiver::WriteJobFinished(const Job &job)
 
     if (done)
         indexStream << *indexBlocks[job.indexBlockNo];
-};
+}

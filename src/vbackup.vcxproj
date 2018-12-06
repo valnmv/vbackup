@@ -97,6 +97,7 @@
     <ClInclude Include="Job.h" />
     <ClInclude Include="FileBlocks.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ProgressIndicator.h" />
     <ClInclude Include="Unarchiver.h" />
     <ClInclude Include="VssCopy.h" />
     <ClInclude Include="zlib_intf.h" />
@@ -112,6 +113,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BlockWriter.cpp" />
+    <ClCompile Include="ProgressIndicator.cpp" />
     <ClCompile Include="Unarchiver.cpp" />
     <ClCompile Include="VssCopy.cpp" />
     <ClCompile Include="zlib_intf.cpp" />

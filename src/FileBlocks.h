@@ -63,7 +63,7 @@ struct IndexBlock
 
 struct DataBlock
 {
-    uint64_t no; // seq.block#
+    uint64_t no; // seq.block# = job#
     uint64_t origLength; // number of data bytes before compression
     uint64_t length; // number of data bytes in the block
     std::vector<uint8_t> data;
