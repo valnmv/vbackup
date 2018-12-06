@@ -28,7 +28,6 @@ void Archiver::Init(const std::wstring &src, const std::wstring &dest)
 
 void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 {
-    auto start = std::chrono::high_resolution_clock::now();
     Init(src, dest);
     Compressor compressor;
     BlockWriter writer;
@@ -39,6 +38,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     auto setFileOffset = [this](size_t blockNo, size_t recNo, uintmax_t offset) {
         indexBlocks[blockNo]->records[recNo].offset = offset; };
 
+    //indicator.Start();
     EnqueueCompressorJob = [&compressor](Job &job) { compressor.Enqueue(job); };
     writer.Start(dataFile, setFileOffset, writeJobFinished);
     compressor.Start(compressorCount - 1, [&writer](Job &job) { writer.Enqueue(job); });
@@ -46,10 +46,6 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     ListFiles(source);
     writer.Complete(jobsCreated);
     compressor.Complete();
-
-    auto finish = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::seconds> (finish - start);
-    std::cout << std::endl << elapsed.count() << " sec" << std::endl;
 }
 
 void Archiver::ListFiles(const std::wstring &path)
