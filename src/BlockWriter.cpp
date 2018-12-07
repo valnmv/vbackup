@@ -6,6 +6,9 @@
 #include "BlockWriter.h"
 #include "FileBlocks.h"
 
+// Start writer thread; <offsetFunc> is used to store compressed data offset in index blocks;
+// <jobFinishedFunction> is to update progress indicator and write index block when the last file 
+// in an index block was processed
 void BlockWriter::Start(const std::wstring &filename, const SetOffsetFunction &offsetFunc,
 	const WriteJobFinishedFunction &jobFinishedFunction)
 {
@@ -15,6 +18,7 @@ void BlockWriter::Start(const std::wstring &filename, const SetOffsetFunction &o
 	future = std::async(std::launch::async, &BlockWriter::WriteLoop, this);
 }
 
+// Block writer thread
 void BlockWriter::WriteLoop()
 {
     while (!stop)
@@ -39,6 +43,7 @@ void BlockWriter::WriteLoop()
     }
 }
 
+// For clients - to push job for writing
 void BlockWriter::Enqueue(Job &job)
 {
     {
@@ -48,6 +53,7 @@ void BlockWriter::Enqueue(Job &job)
     queueCond.notify_all();
 }
 
+// Stop the thread when all jobs are processed
 void BlockWriter::Complete(uint64_t jobCount)
 {
     std::unique_lock<std::mutex> lock(queueMutex);
@@ -57,6 +63,7 @@ void BlockWriter::Complete(uint64_t jobCount)
     queueCond.notify_all();
 }
 
+// Get a job from the own processing queue
 bool BlockWriter::GetJob(Job &job)
 {
     std::unique_lock<std::mutex> lock(queueMutex);

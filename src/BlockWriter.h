@@ -1,3 +1,6 @@
+// BlockWriter - writes compressed data to disk
+//
+
 #pragma once
 
 #include "Job.h"
@@ -20,21 +23,21 @@ using WriteJobFinishedFunction = std::function<void(const Job &)>;
 class BlockWriter
 {
 private:
-    std::ofstream stream;
-    std::priority_queue<Job, std::vector<Job>, CompareJob> queue;
+    std::ofstream stream; // compressed data stream
+    std::priority_queue<Job, std::vector<Job>, CompareJob> queue; // job queue
     std::mutex queueMutex;
     std::condition_variable queueCond;
     std::atomic<uint64_t> jobsWriten = 0;
     std::atomic<uint64_t> fileNoWriting = 0;
 	std::future<void> future;
     bool stop = false;
-	SetOffsetFunction SetFileOffset;
-    WriteJobFinishedFunction WriteJobFinished;
+	SetOffsetFunction SetFileOffset; // store the compressed data offset in the index file
+    WriteJobFinishedFunction WriteJobFinished; // update progress, save index block
     bool GetJob(Job &job);
 public:
     void Start(const std::wstring &filename, const SetOffsetFunction &offsetFunc,
 		const WriteJobFinishedFunction &jobFinishedFunction);
     void WriteLoop();
-    void Enqueue(Job &job);
+    void Enqueue(Job &job); // push writing job to the own queue
     void Complete(uint64_t jobCount);
 };

@@ -5,7 +5,8 @@
 
 #include <cassert>
 
-// start compression threads
+// Start <count> compression threads; <writerEnqueueFunc> is used by the threads after compression 
+// to push a job to writer queue
 void Compressor::Start(int count, const WriterEnqueueFunc &writerEnqueueFunc)
 {
     assert(futures.empty());
@@ -17,7 +18,7 @@ void Compressor::Start(int count, const WriterEnqueueFunc &writerEnqueueFunc)
     }
 }
 
-// for compressor clients - add job to compression queue
+// For compressor clients - add job to the compression queue
 void Compressor::Enqueue(Job &job)
 {
     {
@@ -29,7 +30,7 @@ void Compressor::Enqueue(Job &job)
     queueCond.notify_one();
 }
 
-// stop compression threads
+// Stop compression threads
 void Compressor::Complete()
 {
     stop = true;
@@ -38,7 +39,7 @@ void Compressor::Complete()
         f.get();
 }
 
-// compressor thread
+// Compressor thread
 void Compressor::CompressLoop()
 {
 	while (!stop)
@@ -54,6 +55,7 @@ void Compressor::CompressLoop()
     }
 }
 
+// Get job to process from the compression queue
 bool Compressor::GetJob(Job &job)
 {
 	{
@@ -69,6 +71,7 @@ bool Compressor::GetJob(Job &job)
     return true;
 }
 
+// Compress data from the job.inbuf to job.outbuf
 int Compressor::CompressChunk(Job &job)
 {
     return deflate(compressionLevel, job.inbuf, job.outbuf);

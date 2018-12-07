@@ -1,3 +1,6 @@
+// Compressor - compress source data chunks, uses a job queue
+//
+
 #pragma once
 
 #include "Job.h"
@@ -22,13 +25,13 @@ private:
     std::vector<std::future<void>> futures;
     bool stop = false;
     int threadCount = 0;
-	std::function<void(Job &)> EnqueueWriterJob;
+    WriterEnqueueFunc EnqueueWriterJob;
 
     bool GetJob(Job &job);
     int CompressChunk(Job &job);
     void CompressLoop();
 public:
     void Start(int count, const WriterEnqueueFunc &writerEnqueueFunc);
-    void Enqueue(Job &job);
+    void Enqueue(Job &job); // for compressor clients - add job to compression queue
     void Complete();
 };

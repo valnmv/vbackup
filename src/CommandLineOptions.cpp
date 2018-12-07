@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CommandLineOptions.h"
 
+// Parse command line options, simplistic implementation
 void CommandLineOptions::Parse(int argc, wchar_t *argv[])
 {
     std::wstring s(argv[1]);

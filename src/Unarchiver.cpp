@@ -9,6 +9,7 @@
 
 namespace fs = std::experimental::filesystem;
 
+// Read index and compressed data files, decompress and restore
 void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 {
     dataFile = src;
@@ -40,6 +41,7 @@ void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
     }
 }
 
+// Restore files per index blocks, creates directories
 void Unarchiver::ProcessIndexBlock(const IndexBlock &index)
 {
     fs::path dir = index.records[0].name;

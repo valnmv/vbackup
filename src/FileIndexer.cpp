@@ -1,6 +1,3 @@
-// FileIndexer - traverse files, create file index, enqueue jobs for compression
-//
-
 #include "pch.h"
 #include "FileIndexer.h"
 #include "BlockWriter.h"
@@ -18,6 +15,7 @@
 
 namespace fs = std::experimental::filesystem;
 
+// Start indexing, uses <enqueueCompressorJobFunc> to push jobs for compression
 void FileIndexer::Start(const std::wstring &src, const std::wstring &dest,
     const EnqueueCompressorJobFunc &enqueueCompressorJobFunc)
 {
@@ -32,6 +30,7 @@ void FileIndexer::Start(const std::wstring &src, const std::wstring &dest,
     ListFiles(source);
 }
 
+// Traverse path, create index blocks
 void FileIndexer::ListFiles(const std::wstring &path)
 {
     std::unique_ptr<IndexBlock> indexBlockPtr = std::make_unique<IndexBlock>();
@@ -61,6 +60,7 @@ void FileIndexer::ListFiles(const std::wstring &path)
     ProcessIndexBlock(*indexBlocks[blockNo]);
 }
 
+// Traverse files/folders from an index block to create next index records and compressor jobs
 void FileIndexer::ProcessIndexBlock(const IndexBlock &block)
 {
     IndexRecord header = block.records[0];
@@ -75,6 +75,7 @@ void FileIndexer::ProcessIndexBlock(const IndexBlock &block)
     }
 }
 
+// Read a file in chunks and create jobs for each data chunk
 void FileIndexer::CreateJobs(const std::wstring &path, const uint64_t fileNo, const std::size_t indexBlockNo, 
     const std::size_t indexRecNo)
 {
@@ -102,6 +103,8 @@ void FileIndexer::ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uin
 	buffer.resize(is.gcount());
 }
 
+// Store compressed data length in index record; if it is the last index record 
+// in a block - store the index block
 void FileIndexer::WriteJobFinished(const Job &job)
 {
     auto &recs = indexBlocks[job.indexBlockNo]->records;

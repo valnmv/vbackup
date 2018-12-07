@@ -12,10 +12,11 @@ ProgressIndicator::ProgressIndicator()
 
 void ProgressIndicator::Start()
 {
-    startTime = std::chrono::high_resolution_clock::now();
     value = 0;
+    startTime = std::chrono::high_resolution_clock::now();
 }
 
+// Show indicator as x sec [====>] y%
 void ProgressIndicator::Update(float newValue)
 {
 	if (100 * (newValue - value) < 0.5)
