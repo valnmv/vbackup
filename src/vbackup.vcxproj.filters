@@ -24,9 +24,6 @@
     <ClInclude Include="VssCopy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Archiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Job.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,12 @@
     <ClInclude Include="ProgressIndicator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FileIndexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Archiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -57,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VssCopy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileBlocks.cpp">
@@ -81,6 +81,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ProgressIndicator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIndexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

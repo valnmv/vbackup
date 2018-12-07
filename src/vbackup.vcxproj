@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Archiver.h" />
+    <ClInclude Include="FileIndexer.h" />
     <ClInclude Include="CommandLineOptions.h" />
     <ClInclude Include="BlockWriter.h" />
     <ClInclude Include="Compressor.h" />
@@ -104,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Archiver.cpp" />
+    <ClCompile Include="FileIndexer.cpp" />
     <ClCompile Include="CommandLineOptions.cpp" />
     <ClCompile Include="Compressor.cpp" />
     <ClCompile Include="FileBlocks.cpp" />

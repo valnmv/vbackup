@@ -9,6 +9,8 @@
 #include <queue>
 #include <vector>
 
+using WriterEnqueueFunc = std::function<void(Job &)>;
+
 class Compressor
 {
 private:
@@ -26,7 +28,7 @@ private:
     int CompressChunk(Job &job);
     void CompressLoop();
 public:
-    void Start(int count, const std::function<void(Job &)> &writerEnqueueFunc);
+    void Start(int count, const WriterEnqueueFunc &writerEnqueueFunc);
     void Enqueue(Job &job);
     void Complete();
 };

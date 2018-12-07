@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Job.h"
 
 #include <atomic>
@@ -8,7 +7,6 @@
 #include <fstream>
 #include <functional>
 #include <future>
-#include <map>
 #include <queue>
 
 struct CompareJob

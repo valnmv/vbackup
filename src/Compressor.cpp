@@ -6,7 +6,7 @@
 #include <cassert>
 
 // start compression threads
-void Compressor::Start(int count, const std::function<void(Job &)> &writerEnqueueFunc)
+void Compressor::Start(int count, const WriterEnqueueFunc &writerEnqueueFunc)
 {
     assert(futures.empty());
 	EnqueueWriterJob = writerEnqueueFunc;
@@ -17,6 +17,7 @@ void Compressor::Start(int count, const std::function<void(Job &)> &writerEnqueu
     }
 }
 
+// for compressor clients - add job to compression queue
 void Compressor::Enqueue(Job &job)
 {
     {

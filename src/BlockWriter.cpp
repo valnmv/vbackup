@@ -1,3 +1,7 @@
+// BlockWriter - processes jobs to write to disk compressed data, 
+// uses its own priority queue ordered by job#
+//
+
 #include "pch.h"
 #include "BlockWriter.h"
 #include "FileBlocks.h"
