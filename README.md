@@ -15,7 +15,7 @@
 
 ### Design
 ![Component flow](./docs/component-diagram.png)
-![Data flow](./docs/data-flow-diagram.png)
+![Data flow](./docs/dataflow-diagram.png)
 
 ### Useful information / code examples
 
