@@ -11,9 +11,11 @@
 * Use ZLIB library for compression
 
 ### Not needed or to do later / in the future
-* Archive and restore file security attributes
+* Archive and restore file attributes and permissions (access control lists)
 
 ### Design
+![Component flow](./docs/component-diagram.png)
+![Data flow](./docs/data-flow-diagram.png)
 
 ### Useful information / code examples
 

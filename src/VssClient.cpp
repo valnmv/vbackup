@@ -2,7 +2,10 @@
 // 
 
 #include "pch.h"
-#include "VssCopy.h"
+#include "VssClient.h"
+
+#include <string>
+#include <iostream>
 
 inline void throw_if_fail(HRESULT hr)
 {
@@ -12,7 +15,30 @@ inline void throw_if_fail(HRESULT hr)
     }
 }
 
-VSS_ID VssCopy::CreateSnapshot(std::wstring volume)
+std::string GetLastErrorText(DWORD errorCode)
+{
+	PCHAR pwszBuffer = NULL;
+	DWORD dwRet = ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&pwszBuffer, 0, NULL);
+
+	if (dwRet == 0)
+		return std::string("<Unknown error code>");
+
+	std::string errorText(pwszBuffer);
+	LocalFree(pwszBuffer);
+	return errorText;
+}
+
+inline void check_last_error(bool result)
+{
+	if (!result)
+	{
+		DWORD errorCode = GetLastError();		
+		throw std::runtime_error(GetLastErrorText(errorCode));
+	}
+}
+
+VSS_ID VssCopy::CreateSnapshot(std::wstring path)
 {
     throw_if_fail(CreateVssBackupComponents(&backupComponents));
     throw_if_fail(backupComponents->InitializeForBackup());
@@ -21,9 +47,9 @@ VSS_ID VssCopy::CreateSnapshot(std::wstring volume)
 
     VSS_ID snapshotSetId;
     throw_if_fail(backupComponents->StartSnapshotSet(&snapshotSetId));
-
+    
     VSS_ID snapshotId = GUID_NULL;
-    throw_if_fail(backupComponents->AddToSnapshotSet(&volume[0], GUID_NULL, &snapshotId));
+    throw_if_fail(backupComponents->AddToSnapshotSet(&path[0], GUID_NULL, &snapshotId));
 
     CComPtr<IVssAsync> async;
     throw_if_fail(backupComponents->DoSnapshotSet(&async));
@@ -32,17 +58,17 @@ VSS_ID VssCopy::CreateSnapshot(std::wstring volume)
     return snapshotId;
 }
 
-bool VssCopy::CopySnapshotFile(const VSS_ID snapshotId, const WCHAR sourceFilePath[MAX_PATH],
-    const WCHAR newFileLocation[MAX_PATH])
+bool VssCopy::CopySnapshotFile(const VSS_ID snapshotId, const std::wstring &sourcePath,
+    const std::wstring &newPath)
 {
     VSS_SNAPSHOT_PROP snapshotProp;
     throw_if_fail(backupComponents->GetSnapshotProperties(snapshotId, &snapshotProp));
 
-    TCHAR existingFileLocation[MAX_PATH];
-    wcscpy_s(existingFileLocation, snapshotProp.m_pwszSnapshotDeviceObject);
-    wcscat_s(existingFileLocation, sourceFilePath);
+    std::wstring fileLocation = snapshotProp.m_pwszSnapshotDeviceObject + sourcePath;
     //VssFreeSnapshotProperties(&snapshotProp);
-    return CopyFile(existingFileLocation, newFileLocation, false);
+    std::wstring s;
+	check_last_error(CopyFile(fileLocation.c_str(), newPath.c_str(), false));
+	return true;
 }
 
 // Not completed, this is part of an example how to enumerate shadow copies

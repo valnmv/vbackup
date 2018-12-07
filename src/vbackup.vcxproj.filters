@@ -13,15 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="docs">
+      <UniqueIdentifier>{dcd3ac45-8b10-4fd0-82b8-e7f35c47fd0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CommandLineOptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VssCopy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Job.h">
@@ -51,15 +51,15 @@
     <ClInclude Include="Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VssClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CommandLineOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VssCopy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileBlocks.cpp">
@@ -89,8 +89,22 @@
     <ClCompile Include="Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VssClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
+    <None Include="..\docs\design.docx">
+      <Filter>docs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\docs\component-diagram.png">
+      <Filter>docs</Filter>
+    </Image>
+    <Image Include="..\docs\dataflow-diagram.png">
+      <Filter>docs</Filter>
+    </Image>
   </ItemGroup>
 </Project>

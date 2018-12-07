@@ -100,7 +100,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProgressIndicator.h" />
     <ClInclude Include="Unarchiver.h" />
-    <ClInclude Include="VssCopy.h" />
+    <ClInclude Include="VssClient.h" />
     <ClInclude Include="zlib_intf.h" />
   </ItemGroup>
   <ItemGroup>
@@ -117,11 +117,16 @@
     <ClCompile Include="BlockWriter.cpp" />
     <ClCompile Include="ProgressIndicator.cpp" />
     <ClCompile Include="Unarchiver.cpp" />
-    <ClCompile Include="VssCopy.cpp" />
+    <ClCompile Include="VssClient.cpp" />
     <ClCompile Include="zlib_intf.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\docs\design.docx" />
     <None Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\docs\component-diagram.png" />
+    <Image Include="..\docs\dataflow-diagram.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
