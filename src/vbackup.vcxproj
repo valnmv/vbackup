@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Archiver.h" />
+    <ClInclude Include="CCoInitialize.h" />
     <ClInclude Include="FileIndexer.h" />
     <ClInclude Include="CommandLineOptions.h" />
     <ClInclude Include="BlockWriter.h" />
@@ -100,6 +101,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProgressIndicator.h" />
     <ClInclude Include="Unarchiver.h" />
+    <ClInclude Include="util.h" />
     <ClInclude Include="VssClient.h" />
     <ClInclude Include="zlib_intf.h" />
   </ItemGroup>
@@ -117,6 +119,7 @@
     <ClCompile Include="BlockWriter.cpp" />
     <ClCompile Include="ProgressIndicator.cpp" />
     <ClCompile Include="Unarchiver.cpp" />
+    <ClCompile Include="util.cpp" />
     <ClCompile Include="VssClient.cpp" />
     <ClCompile Include="zlib_intf.cpp" />
   </ItemGroup>

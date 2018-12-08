@@ -5,7 +5,6 @@
 #include "ProgressIndicator.h"
 
 #include "zlib_intf.h" // for CHUNK
-#include <iostream>
 
 #include <cassert>
 #include <codecvt>

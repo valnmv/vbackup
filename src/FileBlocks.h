@@ -20,7 +20,7 @@
 // <rec.type> 0=header, 1=file, 2=directory
 // <length> for header - current dir.block size, for file - file length, for directory - 0
 // <file#> and <offset>:
-// - in header record they point to a next directory block when there are more than 
+// - TODO: in a header record they point to a next directory block when there are more than 
 //   a 1000 directory entries
 // - in file records these fields define data file# and offset to the file data in a data file
 // - in directory records they define index file# and position of directory data in index files
