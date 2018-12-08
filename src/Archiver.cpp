@@ -29,13 +29,13 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     VssClient vssClient;
     std::wstring rootPath = MakeRootPath(src);
 
+    fs::space_info spaceInfo = fs::space(src);
+    uint64_t totalBytes = spaceInfo.capacity - spaceInfo.available;
+
     indicator.PrintText(L"Creating snapshot...");
     vssClient.CreateSnapshot(rootPath);
     std::wstring relativePath = fs::path(src).relative_path();
     fs::path vssSrcPath{ fs::path(vssClient.GetSnapshotDeviceObject()) / relativePath };
-
-    fs::space_info spaceInfo = fs::space(src);
-    uint64_t totalBytes = spaceInfo.capacity - spaceInfo.available;
 
     const FileIndexerStatistics& stats = indexer.Statistics();
     auto writeJobFinished = [&indexer, &indicator, &stats, totalBytes](const Job& job) {

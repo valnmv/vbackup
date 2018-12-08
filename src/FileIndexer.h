@@ -29,7 +29,6 @@ private:
     std::wstring indexFile;
     std::wofstream indexStream;
 
-    bool indexingFinished = false;
     FileIndexerStatistics statistics;
     FileIndex indexBlocks;
 	uint64_t blockNo = 0;

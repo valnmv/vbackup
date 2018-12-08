@@ -32,7 +32,6 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     while (ReadIndexBlock(indexBlock))
     {
         ProcessIndexBlock(indexBlock);
-        indicator.Update(static_cast<float>(static_cast<long double>(blockNo) / blockCount));
     }
     indicator.PrintTimeElapsed();
 }
