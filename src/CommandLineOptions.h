@@ -12,5 +12,6 @@ public:
     std::wstring source;
     std::wstring destination;
     void Parse(int argc, wchar_t *argv[]);
+    void PrintHelp();
 };
 
