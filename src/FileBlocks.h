@@ -39,10 +39,10 @@
 
 struct IndexRecord
 {
-    short type; // 0=header, 1=file, 2=directory
-    uint64_t length; // file length for files, otherwise zero
-    uint64_t fileNo; // will be used when the archives are split in several volumes, e.g of 4GB
-    uint64_t offset; // offset of the first block in the compressed data file
+    short type = 0; // 0=header, 1=file, 2=directory
+    uint64_t length = 0; // file length for files, otherwise zero
+    uint64_t fileNo = 0; // will be used when the archives are split in several volumes, e.g of 4GB
+    uint64_t offset = 0; // offset of the first block in the compressed data file
     std::wstring name; // file / directory name
     uint64_t done = false; // not stored, used only during compression, to be removed later
 
@@ -52,7 +52,7 @@ struct IndexRecord
 
 struct IndexBlock
 {	
-	uint64_t no;
+	uint64_t no = 0;
 	std::vector<IndexRecord> records;
 	void AddRecord(IndexRecord &rec) { records.push_back(std::move(rec)); }
 
@@ -62,9 +62,9 @@ struct IndexBlock
 
 struct DataBlock
 {
-    uint64_t no; // seq.block# = job#
-    uint64_t origLength; // number of data bytes before compression
-    uint64_t length; // number of data bytes in the block
+    uint64_t no = 0; // seq.block# = job#
+    uint64_t origLength = 0; // number of data bytes before compression
+    uint64_t length = 0; // number of data bytes in the block
     std::vector<uint8_t> data;
 
     void read(std::istream &is);

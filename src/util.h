@@ -27,3 +27,11 @@ inline void check_last_error(bool result)
         throw std::runtime_error(GetLastErrorText(errorCode));
     }
 }
+
+inline bool ends_with(std::wstring const &value, std::wstring const &ending)
+{
+    if (ending.size() > value.size()) 
+        return false;
+    
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}

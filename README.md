@@ -64,7 +64,7 @@ starts with a header record and contains records for files and subdirectories.
 
 Index file = [directory-block] ...  
 Directory block = [header record] [file or directory record] ...  
-Record = [rec.type | length | file# | offset | last-datablock# | name]
+Record = [rec.type | length | file# | offset | name]
 
 ![Index file](./docs/index-file-structure.png)
 

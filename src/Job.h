@@ -13,5 +13,5 @@ struct Job
 	std::size_t indexRecNo = 0; // record# in index block
 	std::vector<uint8_t> inbuf;
     std::vector<uint8_t> outbuf;
-    bool lastFileJob;
+    bool lastFileJob = false;
 };

@@ -15,6 +15,6 @@ private:
     VSS_SNAPSHOT_PROP snapshotProp;
 public:
     void CreateSnapshot(std::wstring volume);
+    std::wstring GetSnapshotDeviceObject() { return snapshotProp.m_pwszSnapshotDeviceObject;  }
     void EnumSnapshots();
-    bool CopySnapshotFile(const std::wstring &sourcePath, const std::wstring &newPath);
 };

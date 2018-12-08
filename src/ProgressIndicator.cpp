@@ -19,11 +19,11 @@ void ProgressIndicator::Start()
 // Show indicator as x sec [====>] y%
 void ProgressIndicator::Update(float newValue)
 {
-	if (100 * (newValue - value) < 0.5)
+	if (100.0 * (newValue - value) < 0.5)
 		return;
 
 	value = newValue;
-	size_t pos = static_cast<int>(barWidth * value);
+	int pos = static_cast<int>(barWidth * value);
 	std::string s(pos > 0 ? pos - 1 : 0, '=');
 	s += '>';
 
