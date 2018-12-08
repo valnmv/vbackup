@@ -15,6 +15,9 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 {
     dataFile = src;
     destination = dest;
+    if (fs::path(destination).generic_string().back() != fs::path::preferred_separator)
+        destination += fs::path::preferred_separator;
+
     indexFile = dataFile + L".i";
     dataStream.open(dataFile, std::ios::binary);
     indexStream.open(indexFile);
