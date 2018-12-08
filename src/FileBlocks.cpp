@@ -7,7 +7,7 @@
 
 void IndexRecord::print(std::wostream &os) const
 {
-    os << type << ' ' << length << ' ' << fileNo << ' ' << offset << ' ' << ' '
+    os << type << ' ' << length << ' ' << fileNo << ' ' << offset << ' '
         << name << '\0' << std::endl;
 }
 
