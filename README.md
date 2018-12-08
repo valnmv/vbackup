@@ -1,5 +1,5 @@
 # vbackup
-File archive and restore application. Goal - to learn and practice C++ 11 constructs.
+File archive and restore application.
 
 ## Requirements
 * Command line application
