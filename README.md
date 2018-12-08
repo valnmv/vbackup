@@ -18,8 +18,7 @@
 ![Data flow](./docs/dataflow-diagram.png)
 ![Index file](./docs/index-file-structure.png)
 ![Data file](./docs/data-file-structure.png)
-=======
-![Data flow](./docs/dataflow-diagram.png)
+
 
 ### Useful information / code examples
 
