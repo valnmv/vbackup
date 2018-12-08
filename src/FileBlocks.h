@@ -44,7 +44,7 @@ struct IndexRecord
     uint64_t fileNo; // will be used when the archives are split in several volumes, e.g of 4GB
     uint64_t offset; // offset of the first block in the compressed data file
     std::wstring name; // file / directory name
-    uint64_t done = false; // not stored, used only during compression
+    uint64_t done = false; // not stored, used only during compression, to be removed later
 
     void print(std::wostream& os) const;
     void read(std::wistream& is);
