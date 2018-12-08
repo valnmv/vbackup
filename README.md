@@ -15,13 +15,11 @@
 
 ### Design
 ![Component flow](./docs/component-diagram.png)
-<<<<<<< HEAD
 ![Data flow](./docs/dataflow-diagram.png)
 ![Index file](./docs/index-file-structure.png)
 ![Data file](./docs/data-file-structure.png)
 =======
 ![Data flow](./docs/dataflow-diagram.png)
->>>>>>> a1ec735ce0282f84bdeab040286c082d45692715
 
 ### Useful information / code examples
 
