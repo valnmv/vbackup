@@ -21,6 +21,9 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     // use machine threads - 1 for compression
     int compressorCount = std::thread::hardware_concurrency() - 1;
+    const std::wstring indexFile = dest + L".i";
+    fs::remove(dest);
+    fs::remove(indexFile);
 
     CCoInitialize coInit;
     VssClient vssClient;
@@ -28,6 +31,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     indicator.ShowText(L"Creating snapshot...");
     vssClient.CreateSnapshot(rootPath);
+    indicator.ShowText(L"Snapshot completed...");
     std::wstring relativePath = fs::path(src).relative_path();
     fs::path vssSrcPath{ fs::path(vssClient.GetSnapshotDeviceObject()) / relativePath };
 
@@ -42,7 +46,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     compressor.Start(compressorCount, [&writer](Job &job) { writer.Enqueue(job); });
     writer.Start(dest, setFileOffset, writeJobFinished);
-    indexer.Start(vssSrcPath, dest, enqueueCompressorJob);
+    indexer.Start(vssSrcPath, dest, indexFile, enqueueCompressorJob);
     writer.Complete(indexer.Statistics().jobsCreated);
     compressor.Complete();
 }

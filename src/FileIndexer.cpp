@@ -15,13 +15,14 @@
 namespace fs = std::experimental::filesystem;
 
 // Start indexing, uses <enqueueCompressorJobFunc> to push jobs for compression
-void FileIndexer::Start(const std::wstring &src, const std::wstring &dest,
-    const EnqueueCompressorJobFunc &enqueueCompressorJobFunc)
+void FileIndexer::Start(const std::wstring &src, const std::wstring &dest, 
+    const std::wstring &index, const EnqueueCompressorJobFunc &enqueueCompressorJobFunc)
 {
     // TODO assert valid state
     source = src;
     dataFile = dest;
-    indexFile = dataFile + L".i";
+    indexFile = index;
+
     indexStream.open(indexFile);
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
@@ -35,13 +36,15 @@ void FileIndexer::ListFiles(const std::wstring &path)
     std::unique_ptr<IndexBlock> indexBlockPtr = std::make_unique<IndexBlock>();
 	indexBlockPtr->no = ++blockNo;
     IndexRecord header{};
+    header.done = true;
     header.name = path;
+    header.name.erase(0, source.length());
     indexBlockPtr->AddRecord(header);
 
     for (const auto &p : fs::directory_iterator(path))
     {
-		if (p.path() == dataFile || p.path() == indexFile)
-			continue;
+        // TODO not sure if this is still possible to happen
+        assert(p.path() != dataFile && p.path() != indexFile);
 
         IndexRecord rec{};
         rec.type = static_cast<short>(p.status().type());
@@ -68,11 +71,14 @@ void FileIndexer::ProcessIndexBlock(const IndexBlock &block)
 	for (std::size_t i = 1; i < block.records.size(); i++)
     {
 		const auto &rec = block.records[i];
+        fs::path path = source;
+        path /= header.name;
+        path /= rec.name;
         if (static_cast<fs::file_type>(rec.type) == fs::file_type::directory)
-            ListFiles(fs::path(header.name) / fs::path(rec.name));
+            ListFiles(path);
 
         if (static_cast<fs::file_type>(rec.type) == fs::file_type::regular)
-            CreateJobs(fs::path(header.name) / fs::path(rec.name), rec.fileNo, block.no, i);
+            CreateJobs(path, rec.fileNo, block.no, i);
     }
 }
 
