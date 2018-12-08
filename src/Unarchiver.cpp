@@ -21,10 +21,6 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
     // progress during restore is based on block#
-    uint64_t blockCount, blockNo = 0;
-    indexStream.seekg(sizeof(uint64_t), std::ios_base::end);
-    indexStream >> blockCount;
-    indexStream.seekg(0);
 
     ProgressIndicator indicator;
     IndexBlock indexBlock;
