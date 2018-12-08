@@ -106,5 +106,8 @@
     <Image Include="..\docs\dataflow-diagram.png">
       <Filter>docs</Filter>
     </Image>
+    <Image Include="..\docs\index-file-structure.png">
+      <Filter>docs</Filter>
+    </Image>
   </ItemGroup>
 </Project>

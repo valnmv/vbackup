@@ -16,6 +16,8 @@
 ### Design
 ![Component flow](./docs/component-diagram.png)
 ![Data flow](./docs/data-flow-diagram.png)
+![Index file](./docs/index-file-structure.png)
+![Data file](./docs/data-file-structure.png)
 
 ### Useful information / code examples
 

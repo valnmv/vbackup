@@ -17,7 +17,7 @@
 // Directory block = [header record] [file or directory record] ...
 // Record = [<rec.type> <length> <file#> <offset> <last-datablock#> <name>]
 //
-// <rec.type> H=header, F=file, D=directory
+// <rec.type> 0=header, 1=file, 2=directory
 // <length> for header - current dir.block size, for file - file length, for directory - 0
 // <file#> and <offset>:
 // - in header record they point to a next directory block when there are more than 
@@ -36,7 +36,6 @@
 // <length> is the length of the compressed data block
 // <orig-length> is uncompressed data size
 //
-
 
 struct IndexRecord
 {

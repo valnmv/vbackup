@@ -127,6 +127,7 @@
   <ItemGroup>
     <Image Include="..\docs\component-diagram.png" />
     <Image Include="..\docs\dataflow-diagram.png" />
+    <Image Include="..\docs\index-file-structure.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
