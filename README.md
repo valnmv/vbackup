@@ -12,14 +12,18 @@ File archive and restore application.
 * Use ZLIB library for compression
 
 ## To do later / in the future
-* Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
 * Archive and restore file attributes and permissions (access control lists)
-* Much improved error handling is needed
+* Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
 * Special handling of soft/hard links?
-* Restore on live system?
+* Restore on live system - not tested
+* Improved error handling
 
 ## Command line arguments
 See the description in [CommandLineOptions.cpp](./src/CommandLineOptions.cpp)
+
+For quick debugging and testing purposes the program accepts folder path as 
+source for archiving. But in this case the progress indicator will show incorrect 
+information.
 
 ## Design
 
@@ -32,7 +36,7 @@ The program uses several classes for archiving, designed as independent componen
 * FileIndexer traverses the directories
 * Compressor runs the threads that compress source data chunks
 * BlockWriter thread stores compressed blocks to disk
-* ProgressIndicator shows time elapsed and current % complete.
+* ProgressIndicator shows time elapsed and current % complete during compression
 
 The objects are independent of each other. The Archiver creates and wires them
 with lambda functions, so that FileIndexer can store in the index the file 

@@ -28,6 +28,7 @@ void FileIndexer::Start(const std::wstring &src, const std::wstring &dest,
 
     EnqueueCompressorJob = enqueueCompressorJobFunc;
     ListFiles(source);
+    indexingFinished = true;
 }
 
 // Traverse path, create index blocks

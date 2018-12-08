@@ -29,14 +29,6 @@ void VssClient::CreateSnapshot(std::wstring path)
     throw_if_fail(backupComponents->GetSnapshotProperties(snapshotId, &snapshotProp));
 }
 
-//bool VssClient::CopySnapshotFile(const std::wstring &sourcePath,
-//    const std::wstring &newPath)
-//{
-//    std::wstring fileLocation = snapshotProp.m_pwszSnapshotDeviceObject + sourcePath;
-//	check_last_error(CopyFile(fileLocation.c_str(), newPath.c_str(), false));
-//	return true;
-//}
-
 // Not completed, this is part of an example how to enumerate shadow copies
 void VssClient::EnumSnapshots()
 {

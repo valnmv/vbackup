@@ -11,7 +11,8 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> startTime;
 public:
     void Start();
-    void ShowText(const std::wstring &text = L"");
+    void PrintTimeElapsed();
+    void PrintText(const std::wstring &text = L"");
     void Update(float newValue);
     ProgressIndicator();
 };
