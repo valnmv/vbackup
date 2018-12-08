@@ -18,14 +18,18 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
     Compressor compressor;
     BlockWriter writer;
     ProgressIndicator indicator;
+
     // use machine threads - 1 for compression
     int compressorCount = std::thread::hardware_concurrency() - 1;
 
     CCoInitialize coInit;
     VssClient vssClient;
     std::wstring rootPath = MakeRootPath(src);
+
+    indicator.ShowText(L"Creating snapshot...");
     vssClient.CreateSnapshot(rootPath);
-    //    vssClient.CopySnapshotFile(L"\\Users\\valyo\\NTUSER.DAT", L"c:/NTUSER-copy.DAT");
+    std::wstring relativePath = fs::path(src).relative_path();
+    fs::path vssSrcPath{ fs::path(vssClient.GetSnapshotDeviceObject()) / relativePath };
 
     const FileIndexerStatistics& stats = indexer.Statistics();
     auto writeJobFinished = [&indexer, &indicator, &stats](const Job& job) {
@@ -38,7 +42,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
 
     compressor.Start(compressorCount, [&writer](Job &job) { writer.Enqueue(job); });
     writer.Start(dest, setFileOffset, writeJobFinished);
-    indexer.Start(src, dest, enqueueCompressorJob);
+    indexer.Start(vssSrcPath, dest, enqueueCompressorJob);
     writer.Complete(indexer.Statistics().jobsCreated);
     compressor.Complete();
 }

@@ -16,6 +16,11 @@ void ProgressIndicator::Start()
     startTime = std::chrono::high_resolution_clock::now();
 }
 
+void ProgressIndicator::ShowText(const std::wstring &text)
+{
+    std::wcout << text << std::endl;
+}
+
 // Show indicator as x sec [====>] y%
 void ProgressIndicator::Update(float newValue)
 {

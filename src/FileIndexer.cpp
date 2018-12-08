@@ -45,10 +45,12 @@ void FileIndexer::ListFiles(const std::wstring &path)
 
         IndexRecord rec{};
         rec.type = static_cast<short>(p.status().type());
+        rec.done = true; // used only for files, to be removed later
         if (p.status().type() == fs::file_type::regular)
         {
             rec.length = fs::file_size(p);
             statistics.totalBytes += rec.length;
+            rec.done = false;
         }
         rec.name = p.path().filename();
         rec.fileNo = ++statistics.filesIndexed;
@@ -112,9 +114,7 @@ void FileIndexer::WriteJobFinished(const Job &job)
     statistics.bytesCompressed += rec.length;
 
     // all files processed?
-    bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) {
-        return (r.type != static_cast<short>(fs::file_type::regular)) || r.done; });
-
+    bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) { return r.done; });
     if (done)
         indexStream << *indexBlocks[job.indexBlockNo];
 }

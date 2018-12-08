@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <string>
 
 class ProgressIndicator
 {
@@ -10,7 +11,8 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> startTime;
 public:
     void Start();
-	void Update(float newValue);
+    void ShowText(const std::wstring &text = L"");
+    void Update(float newValue);
     ProgressIndicator();
 };
 
