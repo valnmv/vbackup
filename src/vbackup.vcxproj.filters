@@ -118,5 +118,8 @@
     <Image Include="..\docs\index-file-structure.png">
       <Filter>docs</Filter>
     </Image>
+    <Image Include="..\docs\data-file-structure.png">
+      <Filter>docs</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@
 //
 // Index file = [directory-block] ...
 // Directory block = [header record] [file or directory record] ...
-// Record = [<rec.type> <length> <file#> <offset> <last-datablock#> <name>]
+// Record = [rec.type | length | file# | offset | name]
 //
 // <rec.type> 0=header, 1=file, 2=directory
 // <length> for header - current dir.block size, for file - file length, for directory - 0
@@ -28,7 +28,7 @@
 // Data files
 // ----------
 // Data file = [data-block] ...
-// Data block = [block-no|data-length|orig-length|data...]
+// Data block = [block-no|orig-length|data-length|data...]
 //
 // A data file is made up of data blocks containing compressed file data. Each data block 
 // starts with <block-no> and <data-length> fields and then compressed data from a file. 
@@ -40,11 +40,11 @@
 struct IndexRecord
 {
     short type; // 0=header, 1=file, 2=directory
-    uint64_t length;
-    uint64_t fileNo;
-    uint64_t offset;
-    uint64_t lastBlockNo; // last datablock#
-    std::wstring name;
+    uint64_t length; // file length for files, otherwise zero
+    uint64_t fileNo; // will be used when the archives are split in several volumes, e.g of 4GB
+    uint64_t offset; // offset of the first block in the compressed data file
+    std::wstring name; // file / directory name
+    uint64_t done = false; // not stored, used only during compression
 
     void print(std::wostream& os) const;
     void read(std::wistream& is);

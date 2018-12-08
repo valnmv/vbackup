@@ -7,13 +7,13 @@
 
 void IndexRecord::print(std::wostream &os) const
 {
-    os << type << ' ' << length << ' ' << fileNo << ' ' << offset << ' ' << lastBlockNo << ' '
+    os << type << ' ' << length << ' ' << fileNo << ' ' << offset << ' ' << ' '
         << name << '\0' << std::endl;
 }
 
 void IndexRecord::read(std::wistream &is)
 {
-    is >> type >> length >> fileNo >> offset >> lastBlockNo;
+    is >> type >> length >> fileNo >> offset;
     is.ignore();
     std::vector<wchar_t> buf;
     wchar_t ch;

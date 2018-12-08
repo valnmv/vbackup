@@ -18,20 +18,26 @@ File archive and restore application.
 * Special handling of soft/hard links?
 * Restore on live system?
 
+## Command line arguments
+See the description in [CommandLineOptions.cpp](./src/CommandLineOptions.cpp)
+
 ## Design
+
 The program traverses the source volume, creates index blocks for each directory 
 with records for each file and subdirectory. The files are read in chunks and 
 compression jobs created and placed in a compressor queue.
 
-The program uses several classes for archiving, designed as independent components.
-Archiver is the main component, FileIndexer traverses the directories, Compressor runs 
-the compression threads, BlockWriter thread stores to disk, ProgressIndicator shows 
-time elapsed and current % complete.
+The program uses several classes for archiving, designed as independent components:
+* Archiver is the main component
+* FileIndexer traverses the directories
+* Compressor runs the threads that compress source data chunks
+* BlockWriter thread stores compressed blocks to disk
+* ProgressIndicator shows time elapsed and current % complete.
 
-The objects communicate using function objects. Archiver creates and wires them 
-with lambda functions so that FileIndexer can store in the index the file offset and 
-last block# in the compressed data file, the compressor threads to pass jobs to 
-the writing queue and ProgressIndicator to show current progress.
+The objects are independent of each other. The Archiver creates and wires them
+with lambda functions, so that FileIndexer can store in the index the file 
+offset and last block# in the compressed data file, the compressor threads to
+pass jobs to the writing queue and ProgressIndicator to show current progress.
 
 The restoring process is single threaded and very quick.
 
@@ -58,7 +64,7 @@ starts with a header record and contains records for files and subdirectories.
 
 Index file = [directory-block] ...  
 Directory block = [header record] [file or directory record] ...  
-Record = [<rec.type> <length> <file#> <offset> <last-datablock#> <name>]  
+Record = [rec.type | length | file# | offset | last-datablock# | name]
 
 ![Index file](./docs/index-file-structure.png)
 

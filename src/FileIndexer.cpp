@@ -108,13 +108,12 @@ void FileIndexer::WriteJobFinished(const Job &job)
 {
     auto &recs = indexBlocks[job.indexBlockNo]->records;
     auto &rec = recs[job.indexRecNo];
-    rec.lastBlockNo = job.no;
+    rec.done = true;
     statistics.bytesCompressed += rec.length;
 
     // all files processed?
     bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) {
-        return (r.type != static_cast<short>(fs::file_type::regular)) ||
-            (r.lastBlockNo != 0); });
+        return (r.type != static_cast<short>(fs::file_type::regular)) || r.done; });
 
     if (done)
         indexStream << *indexBlocks[job.indexBlockNo];

@@ -30,13 +30,14 @@ void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
 {
     std::ofstream os(path, std::ios::binary);
     dataStream.seekg(rec.offset);
-
+    uint64_t bytesProcessed = 0;
     DataBlock block;
     while (ReadDataBlock(block))
     {
         DecompressChunk(block);
         os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
-        if (block.no == rec.lastBlockNo)
+        bytesProcessed += block.origLength;
+        if (bytesProcessed == rec.length)
             break;
     }
 }
