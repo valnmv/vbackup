@@ -29,6 +29,8 @@ void FileIndexer::Start(const std::wstring &src, const std::wstring &dest,
     EnqueueCompressorJob = enqueueCompressorJobFunc;
     ListFiles(source);
     indexingFinished = true;
+
+    indexStream << indexBlocks.size();
 }
 
 // Traverse path, create index blocks
@@ -123,7 +125,9 @@ void FileIndexer::WriteJobFinished(const Job &job)
     // all files processed?
     bool done = std::all_of(recs.crbegin(), recs.crend(), [](const auto &r) { return r.done; });
     if (done)
+    {
         indexStream << *indexBlocks[job.indexBlockNo];
+    }
 }
 
 void FileIndexer::SetFileOffset(size_t blockNo, size_t recNo, uintmax_t offset) 

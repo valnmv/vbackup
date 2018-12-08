@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FileBlocks.h"
 #include "Unarchiver.h"
+#include "ProgressIndicator.h"
 
 #include <cassert>
 #include <filesystem>
@@ -19,11 +20,21 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     indexStream.open(indexFile);
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
+    // progress during restore is based on block#
+    uint64_t blockCount, blockNo = 0;
+    indexStream.seekg(sizeof(uint64_t), std::ios_base::end);
+    indexStream >> blockCount;
+    indexStream.seekg(0);
+
+    ProgressIndicator indicator;
     IndexBlock indexBlock;
+    indicator.PrintText(L"Restoring...");
     while (ReadIndexBlock(indexBlock))
     {
         ProcessIndexBlock(indexBlock);
+        indicator.Update(static_cast<float>(static_cast<long double>(blockNo) / blockCount));
     }
+    indicator.PrintTimeElapsed();
 }
 
 void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
@@ -37,6 +48,7 @@ void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
         DecompressChunk(block);
         os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
         bytesProcessed += block.origLength;
+        assert(bytesProcessed <= rec.length);
         if (bytesProcessed == rec.length)
             break;
     }

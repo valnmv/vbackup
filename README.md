@@ -47,6 +47,9 @@ The restoring process is single threaded and very quick.
 
 The program classes follow The rule of zero, https://cpppatterns.com/patterns/rule-of-zero.html
 
+The decompression uses only one thread, but even one thread is so fast that the disk 
+gets 100% busy, so there is no sense in having more decompression threads.
+
 ![Components](./docs/component-diagram.png)
 
 The program uses several threads for compression of files taking jobs from compression 

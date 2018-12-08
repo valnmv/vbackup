@@ -23,7 +23,7 @@ void Compressor::Enqueue(Job &job)
 {
     {
         std::unique_lock<std::mutex> lock(queueMutex);
-        //queueCond.wait(lock, [this] { return stop || (queue.size() < threadCount * 10); });
+        queueCond.wait(lock, [this] { return stop || (queue.size() < threadCount * 10); });
 		if (!stop)
 			queue.push(std::move(job));
     }
