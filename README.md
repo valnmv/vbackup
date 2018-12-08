@@ -10,8 +10,11 @@
 * Show progress bar
 * Use ZLIB library for compression
 
-### Not needed or to do later / in the future
+### To do later / in the future
+* Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
 * Archive and restore file attributes and permissions (access control lists)
+* Much improved error handling is needed
+* Special handling of links?
 
 ### Design
 ![Component flow](./docs/component-diagram.png)
