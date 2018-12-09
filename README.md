@@ -64,8 +64,6 @@ The program uses several threads for compression of files taking jobs from compr
 job queue, and one thread with a separate job queue for storing the compressed data blocks. 
 The number of compression threads is equal to the number of machine threads available 
 less one, as this seems to be optimal number, with the last thread used for the writer.
-On large file systems, where file indexing may take long, it could be useful to use one less 
-compression thread.
 
 ![Data flow](./docs/dataflow-diagram.png)
 
