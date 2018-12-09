@@ -10,6 +10,10 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <type_traits>
+
+// currently size_t is used in several places
+static_assert(std::is_same<std::size_t, uint64_t>::value, "std::size_t must be uint64_t");
 
 int wmain(int argc, wchar_t* argv[])
 {

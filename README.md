@@ -17,6 +17,7 @@ File archive and restore application.
 * Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
 * Restore on live system?
 * Improved error handling
+* Help and progress message localization
 
 ## Command line arguments
 The program requires command, a or r, and source and destination paths.

@@ -41,10 +41,9 @@ private:
 public:
     const FileIndexerStatistics& Statistics() const { return statistics; }
     void WriteJobFinished(const Job &job);
-    void SetFileOffset(size_t blockNo, size_t recNo, uintmax_t offset);
+    void SetFileOffset(size_t blockNo, size_t recNo, uint64_t offset);
     void ListFiles(const std::wstring &path);
     void Start(const std::wstring &src, const std::wstring &dest, const std::wstring &index,
         const EnqueueCompressorJobFunc &enqueueCompressorJobFunc);
 };
-
 

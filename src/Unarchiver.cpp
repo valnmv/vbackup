@@ -19,14 +19,18 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
         destination += fs::path::preferred_separator;
 
     indexFile = dataFile + L".i";
+    uint64_t totalBytes = fs::file_size(fs::path(dataFile));
     dataStream.open(dataFile, std::ios::binary);
     indexStream.open(indexFile);
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
+    
 
     ProgressIndicator indicator;
     indicator.PrintText(L"Restoring...");
-    //auto onDataBlockRestored = [&indicator]( uint64_t pos) { 
-    //    indicator.Update(static_cast<long double>(pos) / totalBytes); }
+    // TODO check long double max
+    blockReadyFunc = [&indicator, totalBytes](uint64_t pos) {
+        long double value = static_cast<long double>(pos) / totalBytes;
+        indicator.Update(static_cast<float>(value)); };
 
     IndexBlock indexBlock;
     while (ReadIndexBlock(indexBlock))
@@ -54,11 +58,12 @@ void Unarchiver::ProcessIndexBlock(const IndexBlock &index)
 
     for (const auto &r : index.records)
     {
+        fs::path path = dir / r.name;
         if (r.type == static_cast<short>(fs::file_type::directory))
-            fs::create_directories(r.name);
+            fs::create_directories(path);
 
         if (r.type == static_cast<short>(fs::file_type::regular))
-            RestoreFile((dir) / fs::path(r.name), r);
+            RestoreFile(path, r);
     }
 }
 
@@ -66,7 +71,7 @@ void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
 {
     std::ofstream os(path, std::ios::binary);
     dataStream.seekg(rec.offset);
-    uint64_t bytesProcessed = 0;
+    uint64_t bytesProcessed = 0; // per file
     DataBlock block;
     while (ReadDataBlock(block))
     {
@@ -74,6 +79,11 @@ void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
         os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
         bytesProcessed += block.origLength;
         assert(bytesProcessed <= rec.length);
+        
+        // TODO implement better progress measure
+        decompressedBytes += block.length;
+        blockReadyFunc(decompressedBytes);
+
         if (bytesProcessed == rec.length)
             break;
     }
