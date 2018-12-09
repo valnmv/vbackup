@@ -12,24 +12,34 @@ File archive and restore application.
 * Use ZLIB library for compression
 
 ## To do later / in the future
+* Special handling of soft/hard links? 
 * Archive and restore file attributes and permissions (access control lists)
 * Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
-* Special handling of soft/hard links?
-* Restore on live system - not tested
+* Restore on live system?
 * Improved error handling
 
 ## Command line arguments
-See the description in [CommandLineOptions.cpp](./src/CommandLineOptions.cpp)
+The program requires command, a or r, and source and destination paths.
+See the full description in [CommandLineOptions.cpp](./src/CommandLineOptions.cpp)
 
 For quick debugging and testing purposes the program accepts folder path as 
 source for archiving. But in this case the progress indicator will show incorrect 
-information.
+information, as it is based on the disk space information.
 
 ## Design
+
+### Usage of Volume Shadow Copy Service
+
+In order to archive locked files, the program uses
+[Volume Shadow Copy Service](https://docs.microsoft.com/en-us/windows/desktop/vss/volume-shadow-copy-service-portal)
+
+### Archiving
 
 The program traverses the source volume, creates index blocks for each directory 
 with records for each file and subdirectory. The files are read in chunks and 
 compression jobs created and placed in a compressor queue.
+
+Most program classes follow The rule of zero, https://cpppatterns.com/patterns/rule-of-zero.html
 
 The program uses several classes for archiving, designed as independent components:
 * Archiver is the main component
@@ -43,13 +53,6 @@ with lambda functions, so that FileIndexer can store in the index the file
 offset and last block# in the compressed data file, the compressor threads to
 pass jobs to the writing queue and ProgressIndicator to show current progress.
 
-The restoring process is single threaded and very quick.
-
-The program classes follow The rule of zero, https://cpppatterns.com/patterns/rule-of-zero.html
-
-The decompression uses only one thread, but even one thread is so fast that the disk 
-gets 100% busy, so there is no sense in having more decompression threads.
-
 ![Components](./docs/component-diagram.png)
 
 The program uses several threads for compression of files taking jobs from compression 
@@ -60,6 +63,11 @@ On large file systems, where file indexing may take long, it could be useful to 
 compression thread.
 
 ![Data flow](./docs/dataflow-diagram.png)
+
+### Restoring
+
+The decompression uses only one thread, but even one thread is so fast that the disk 
+gets 100% busy, so there is no sense in having more decompression threads.
 
 ## Data structure reference
 The program creates index files and data files, each of them comprised of consecutive blocks

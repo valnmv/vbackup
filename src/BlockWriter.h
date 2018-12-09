@@ -17,7 +17,7 @@ struct CompareJob
     bool operator() (const Job &lhs, const Job &rhs) { return lhs.no > rhs.no; }
 };
 
-using SetOffsetFunction = std::function<void(std::size_t, std::size_t, uintmax_t)>;
+using SetOffsetFunction = std::function<void(std::size_t, std::size_t, uint64_t)>;
 using WriteJobFinishedFunction = std::function<void(const Job &)>;
 
 class BlockWriter

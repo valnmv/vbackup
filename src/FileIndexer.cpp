@@ -46,10 +46,15 @@ void FileIndexer::ListFiles(const std::wstring &path)
         // TODO not sure if this is still possible to happen
         assert(p.path() != dataFile && p.path() != indexFile);
 
+        fs::file_type entryType = p.status().type();
+        if (entryType != fs::file_type::regular &&
+            entryType != fs::file_type::directory)
+            continue;
+
         IndexRecord rec{};
-        rec.type = static_cast<short>(p.status().type());
-        rec.done = true; // used only for files, to be removed later
-        if (p.status().type() == fs::file_type::regular)
+        rec.type = static_cast<short>(entryType);
+        rec.done = true; // TODO remove done flag
+        if (entryType == fs::file_type::regular)
         {
             rec.length = fs::file_size(p);
             statistics.totalBytes += rec.length;
@@ -87,8 +92,8 @@ void FileIndexer::CreateJobs(const std::wstring &path, const uint64_t fileNo, co
     const std::size_t indexRecNo)
 {
 	std::ifstream is(path, std::ios::binary);
-	uintmax_t bytesLeft = fs::file_size(path);
-	uintmax_t bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
+	uint64_t bytesLeft = fs::file_size(path);
+	uint64_t bytesToRead = bytesLeft < CHUNK ? bytesLeft : CHUNK;
 	bytesLeft -= bytesToRead;
 	while (bytesToRead > 0)
     {
@@ -102,7 +107,7 @@ void FileIndexer::CreateJobs(const std::wstring &path, const uint64_t fileNo, co
     }
 }
 
-void FileIndexer::ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uintmax_t bytes)
+void FileIndexer::ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uint64_t bytes)
 {
 	buffer.resize(bytes);
 	is.read(reinterpret_cast<char*>(&buffer[0]), bytes);
@@ -127,7 +132,7 @@ void FileIndexer::WriteJobFinished(const Job &job)
     }
 }
 
-void FileIndexer::SetFileOffset(size_t blockNo, size_t recNo, uintmax_t offset) 
+void FileIndexer::SetFileOffset(size_t blockNo, size_t recNo, uint64_t offset) 
 {
     indexBlocks[blockNo]->records[recNo].offset = offset;
 };

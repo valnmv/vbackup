@@ -23,11 +23,12 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     indexStream.open(indexFile);
     indexStream.imbue(std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t>));
 
-    // progress during restore is based on block#
-
     ProgressIndicator indicator;
-    IndexBlock indexBlock;
     indicator.PrintText(L"Restoring...");
+    //auto onDataBlockRestored = [&indicator]( uint64_t pos) { 
+    //    indicator.Update(static_cast<long double>(pos) / totalBytes); }
+
+    IndexBlock indexBlock;
     while (ReadIndexBlock(indexBlock))
     {
         ProcessIndexBlock(indexBlock);
@@ -35,21 +36,13 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
     indicator.PrintTimeElapsed();
 }
 
-void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
+bool Unarchiver::ReadIndexBlock(IndexBlock &block)
 {
-    std::ofstream os(path, std::ios::binary);
-    dataStream.seekg(rec.offset);
-    uint64_t bytesProcessed = 0;
-    DataBlock block;
-    while (ReadDataBlock(block))
-    {
-        DecompressChunk(block);
-        os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
-        bytesProcessed += block.origLength;
-        assert(bytesProcessed <= rec.length);
-        if (bytesProcessed == rec.length)
-            break;
-    }
+    if (indexStream.eof())
+        return false;
+
+    block.read(indexStream);
+    return true;
 }
 
 // Restore files per index blocks, creates directories
@@ -69,6 +62,23 @@ void Unarchiver::ProcessIndexBlock(const IndexBlock &index)
     }
 }
 
+void Unarchiver::RestoreFile(const std::wstring &path, const IndexRecord &rec)
+{
+    std::ofstream os(path, std::ios::binary);
+    dataStream.seekg(rec.offset);
+    uint64_t bytesProcessed = 0;
+    DataBlock block;
+    while (ReadDataBlock(block))
+    {
+        DecompressChunk(block);
+        os.write(reinterpret_cast<const char*>(&inflateBuffer[0]), block.origLength);
+        bytesProcessed += block.origLength;
+        assert(bytesProcessed <= rec.length);
+        if (bytesProcessed == rec.length)
+            break;
+    }
+}
+
 bool Unarchiver::ReadDataBlock(DataBlock &block)
 {
 	if (dataStream.eof() || EOF == dataStream.peek())
@@ -84,13 +94,4 @@ int Unarchiver::DecompressChunk(const DataBlock &block)
 		inflateBuffer.resize(block.origLength);
 
 	return inflate(block.data, inflateBuffer);
-}
-
-bool Unarchiver::ReadIndexBlock(IndexBlock &block)
-{
-    if (indexStream.eof())
-        return false;
-
-    block.read(indexStream);
-    return true;
 }

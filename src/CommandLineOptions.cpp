@@ -5,7 +5,8 @@
 
 void CommandLineOptions::PrintHelp()
 {
-    std::cout <<
+    // TODO use parametrized program name in the help text
+    std::string help =
         "Creates or restores a file archive.\n"
         "\n"
         "Usage: vbackup <command> <source> <destination> [path]\n"
@@ -22,11 +23,16 @@ void CommandLineOptions::PrintHelp()
         "  <destination> is the volume to restore to. The index file must be in\n"
         "  the same folder where the archive data file is.\n"
         "\n"
+        "Examples:"
+        "\n"
+        "    vbackup a C: D:\\archive.z \n"
+        "    vbackup r D:\\archive.z C: \n"
+        "\n"
         "Note:\n"
         "  For quick debugging and testing purposes the program accepts folder path\n"
         "  for archiving data source or for destination folder to restore to.\n"
         "  The progress indicator will not show correct info in this case.\n"
-        "  Example - to make an archive of C:\\test to D:\\archive.z use:\n"
+        "  To make an archive of C:\\test to D:\\archive.z use:\n"
         "\n"
         "    vbackup a C:\\test D:\\archive.z \n"
         "\n"
@@ -34,6 +40,8 @@ void CommandLineOptions::PrintHelp()
         "\n"
         "    vbackup r D:\\archive.z C:\\test\n"
         "\n";
+
+    std::cout << help;
 }
 
 // Parse command line options, simple implementation

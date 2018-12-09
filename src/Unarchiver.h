@@ -14,6 +14,7 @@ private:
     std::wstring destination;
     std::ifstream dataStream;
     std::wifstream indexStream;
+    uint64_t compressedBytesRead = 0;
     std::vector<uint8_t> inflateBuffer;
     bool ReadIndexBlock(IndexBlock & block);
     void ProcessIndexBlock(const IndexBlock & index);

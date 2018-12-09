@@ -37,7 +37,7 @@ private:
     void ProcessIndexBlock(const IndexBlock &block);
     void CreateJobs(const std::wstring &path, const uint64_t fileNo, const std::size_t indexBlockNo,
         const std::size_t indexRecNo);
-	void ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uintmax_t bytes);
+	void ReadChunk(std::ifstream &is, std::vector<uint8_t> &buffer, uint64_t bytes);
 public:
     const FileIndexerStatistics& Statistics() const { return statistics; }
     void WriteJobFinished(const Job &job);

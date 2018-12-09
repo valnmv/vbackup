@@ -42,7 +42,7 @@ void Archiver::Run(const std::wstring &src, const std::wstring &dest)
         indexer.WriteJobFinished(job);
         indicator.Update(static_cast<float>(static_cast<long double>(stats.bytesCompressed)
             / totalBytes /*stats.totalBytes*/)); };
-    auto setFileOffset = [&indexer](size_t blockNo, size_t recNo, uintmax_t offset) {
+    auto setFileOffset = [&indexer](size_t blockNo, size_t recNo, uint64_t offset) {
         indexer.SetFileOffset(blockNo, recNo, offset); };
     auto enqueueCompressorJob = [&compressor](Job &job) { compressor.Enqueue(job); };
 
