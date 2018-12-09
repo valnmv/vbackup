@@ -12,7 +12,7 @@ File archive and restore application.
 * Use ZLIB library for compression
 
 ## To do later / in the future
-* Special handling of soft/hard links? 
+* Special handling of soft/hard links? Currently only regular files and directories are archived.
 * Archive and restore file attributes and permissions (access control lists)
 * Split data files in volumes of e.g. 4GB, like data.z.1, data.z.2, ...
 * Restore on live system?
