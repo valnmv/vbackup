@@ -9,7 +9,7 @@ void CommandLineOptions::PrintHelp()
     std::string help =
         "Creates or restores a file archive.\n"
         "\n"
-        "Usage: vbackup <command> <source> <destination> [path]\n"
+        "Usage: vbackup <command> <source> <destination>\n"
         "Commands:\n"
         "  a   Archive files from <source> volume to <destination> archive.\n"
         "  r   Restore files from <source> archive to <destination> volume.\n"
