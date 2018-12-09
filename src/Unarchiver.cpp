@@ -42,7 +42,7 @@ void Unarchiver::Run(const std::wstring &src, const std::wstring &dest)
 
 bool Unarchiver::ReadIndexBlock(IndexBlock &block)
 {
-    if (indexStream.eof())
+    if (indexStream.eof() || EOF == dataStream.peek())
         return false;
 
     block.read(indexStream);

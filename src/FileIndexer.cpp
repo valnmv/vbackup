@@ -6,13 +6,16 @@
 
 #include "zlib_intf.h" // for CHUNK
 
+#include <algorithm>
 #include <cassert>
 #include <codecvt>
 #include <locale>
-#include <algorithm>
 #include <filesystem>
+#include <set>
 
 namespace fs = std::experimental::filesystem;
+
+std::set<std::wstring> specialFolders{ L"$RECYCLE.BIN", L"System Volume Information" };
 
 // Start indexing, uses <enqueueCompressorJobFunc> to push jobs for compression
 void FileIndexer::Start(const std::wstring &src, const std::wstring &dest, 
@@ -45,6 +48,9 @@ void FileIndexer::ListFiles(const std::wstring &path)
     {
         // TODO not sure if this is still possible to happen
         assert(p.path() != dataFile && p.path() != indexFile);
+
+        if (specialFolders.find(p.path().filename()) != specialFolders.end())
+            continue;
 
         fs::file_type entryType = p.status().type();
         if (entryType != fs::file_type::regular &&
