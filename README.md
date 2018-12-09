@@ -20,7 +20,7 @@ File archive and restore application.
 * Help and progress message localization
 
 ## Command line arguments
-The program requires command, a or r, and source and destination paths.
+The program requires command, "a" or "r", and source and destination paths.
 See the full description in [CommandLineOptions.cpp](./src/CommandLineOptions.cpp)
 
 For quick debugging and testing purposes the program accepts folder path as 
