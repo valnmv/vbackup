@@ -34,6 +34,10 @@ information, as it is based on the disk space information.
 In order to archive locked files, the program uses
 [Volume Shadow Copy Service](https://docs.microsoft.com/en-us/windows/desktop/vss/volume-shadow-copy-service-portal)
 
+### Special Windows OS folders
+
+ "$RECYCLE.BIN" and "System Volume Information" special folers are excluded from archiving.
+
 ### Archiving
 
 The program traverses the source volume, creates index blocks for each directory 
