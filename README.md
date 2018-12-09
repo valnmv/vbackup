@@ -36,7 +36,7 @@ In order to archive locked files, the program uses
 
 ### Special Windows OS folders
 
- "$RECYCLE.BIN" and "System Volume Information" special folers are excluded from archiving.
+ "$RECYCLE.BIN" and "System Volume Information" special folders are excluded from archiving.
 
 ### Archiving
 
