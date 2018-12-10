@@ -29,8 +29,8 @@ information, as it is based on the disk space information.
 
 ## Progress indicator
 
-During archiving progress indication uses is based on disk space information, hence when 
-archiving a folder the progress info is not correct.
+During archiving progress indication is based on disk space information, hence when 
+archiving a single folder the progress info is not correct.
 
 ## Design
 
