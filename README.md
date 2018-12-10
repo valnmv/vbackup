@@ -27,6 +27,11 @@ For quick debugging and testing purposes the program accepts folder path as
 source for archiving. But in this case the progress indicator will show incorrect 
 information, as it is based on the disk space information.
 
+## Progress indicator
+
+During archiving progress indication uses is based on disk space information, hence when 
+archiving a folder the progress info is not correct.
+
 ## Design
 
 ### Usage of Volume Shadow Copy Service

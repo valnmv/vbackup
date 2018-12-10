@@ -1,3 +1,6 @@
+// FileIndexer - traverse file system, create file index, read files in chunks and 
+// enqueue jobs for compression
+//
 #include "pch.h"
 #include "FileIndexer.h"
 #include "BlockWriter.h"

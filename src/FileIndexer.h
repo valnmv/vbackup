@@ -1,6 +1,6 @@
-// FileIndexer - traverse files, create file index, enqueue jobs for compression
+// FileIndexer - traverse file system, create file index, read files in chunks and 
+// enqueue jobs for compression
 //
-
 #pragma once
 
 #include "FileBlocks.h"
